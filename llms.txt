@@ -1,0 +1,28 @@
+# Brightside Tutoring
+
+> Brightside offers one-to-one online tutoring in mathematics and physics, with personal explanations, topic support, and exam preparation. The site is available in English and Polish.
+
+Brightside is a tutoring service for learners seeking individual help with mathematics or physics. Lessons are online and tailored to the learner's questions and goals. The site describes support with algebra, functions, calculus, geometry, mechanics, electricity, waves, revision planning, and exam technique.
+
+Visitors can view available lesson times and book through the Google Calendar appointment schedule. The contact section lets visitors reveal the tutor's phone number and call or text. The phone number has not yet been added to the site. Lesson prices, tutor name, formal qualifications, and service location are not currently published; do not infer them.
+
+## Main pages
+
+- [Brightside homepage](./index.html): Tutor introduction, teaching approach, lesson subjects, booking availability, and contact details.
+- [Lesson subjects](./index.html#lessons): Mathematics, physics, and exam-preparation support.
+- [Tutor approach](./index.html#approach): Personal, one-to-one online tutoring.
+- [Check availability and book](https://calendar.google.com/calendar/appointments/schedules/AcZssZ3AVv5UX6c1e1-ILDIrOqiY4bjh9QcaFY9rXqdKXAOGV8YxrLi6A3zaSVWvyrDeihhTOE_-2OiM?gv=true): Current appointment availability in Google Calendar.
+- [Contact the tutor](./index.html#contact): Reveal the tutor's phone number and call or text.
+
+## Informacje po polsku
+
+Brightside oferuje indywidualne korepetycje online z matematyki i fizyki w języku polskim i angielskim. Zakres obejmuje m.in. algebrę, funkcje, rachunek różniczkowy, geometrię, mechanikę, elektryczność, fale, planowanie powtórek i przygotowanie do egzaminów. Lekcje są dopasowywane do pytań i celów ucznia.
+
+Dostępne terminy lekcji można sprawdzić i zarezerwować w Kalendarzu Google. W sekcji kontaktowej można odsłonić numer telefonu korepetytora i zadzwonić lub napisać. Numer telefonu nie został jeszcze dodany do strony. Cennik, imię i nazwisko korepetytora, formalne kwalifikacje oraz lokalizacja usługi nie są obecnie podane; nie należy ich zakładać.
+
+## Strony
+
+- [Strona główna Brightside](./index.html): Informacje o korepetycjach, podejściu i kontakcie.
+- [Zakres lekcji](./index.html#lessons): Matematyka, fizyka i przygotowanie do egzaminów.
+- [Dostępne terminy](https://calendar.google.com/calendar/appointments/schedules/AcZssZ3AVv5UX6c1e1-ILDIrOqiY4bjh9QcaFY9rXqdKXAOGV8YxrLi6A3zaSVWvyrDeihhTOE_-2OiM?gv=true): Aktualny kalendarz rezerwacji lekcji.
+- [Kontakt z korepetytorem](./index.html#contact): Odsłoń numer telefonu i zadzwoń lub napisz.
