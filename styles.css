@@ -74,3 +74,168 @@
   .footer{font-size:14px}
   .footer .brand{font-size:21px}
 }
+
+/* ==========================================================================
+   v2 redesign (branch ui-redesign): type scale, button hierarchy, SVG icons,
+   bento offers, price cards, focus states, touch targets, sticky mobile CTA.
+   Appended last on purpose so it overrides the legacy rules above.
+   ========================================================================== */
+html{-webkit-text-size-adjust:100%}
+.ico{width:1.15em;height:1.15em;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* --- Focus ---------------------------------------------------------------- */
+:focus-visible{outline:3px solid var(--deep);outline-offset:3px;border-radius:6px}
+select:focus-visible{border-radius:999px}
+
+/* --- Buttons: lime primary, outline secondary ----------------------------- */
+.nav-cta,.button{background:var(--green);color:var(--deep);border:1.5px solid var(--deep);font-weight:700;min-height:48px;box-shadow:3px 3px 0 var(--deep);transition:transform .18s,box-shadow .18s,background .18s;cursor:pointer}
+.nav-cta:hover,.button:hover{background:var(--green);transform:none}
+.button.is-outline{background:transparent;box-shadow:none}
+.button.is-outline:hover{background:#eff4e4}
+.nav-cta:active,.button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--deep)}
+.button.is-outline:active{transform:none;background:#e3ecd2}
+.nav-cta{min-height:44px;padding:11px 18px}
+@media(hover:hover){
+  .nav-cta:hover,.button:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--deep)}
+  .button.is-outline:hover{transform:none;box-shadow:none}
+}
+.calendar-contact{margin-top:14px}
+.has-calendar .calendar-open{margin-top:4px}
+
+/* --- Typography: readable sizes, sane tracking ---------------------------- */
+html[lang] .hero h1{letter-spacing:-.03em}
+.section h2{letter-spacing:-.025em}
+.eyebrow{font-size:12px;letter-spacing:1.4px}
+.pricing-note,.phone-missing{font-size:13px}
+.language-picker select{font-size:13px}
+@media(min-width:1000px){.eyebrow{font-size:13px}}
+@media(max-width:999px){
+  .nav-cta,.button{font-size:15px}
+  .lead,.tutor-quick-info p{font-size:16px}
+  .stat span{font-size:13px}
+  .section-desc,.offer p,.contact-card>p,.booking-message p{font-size:15px}
+  .small-link{font-size:14px}
+  .quote-by,.rating span{font-size:13px}
+  .footer{font-size:13px}
+  .proof{font-size:14px}
+  .portrait-caption small{font-size:12px}
+  .portrait-note{font-size:13px}
+}
+@media(max-width:600px){
+  .hero h1{font-size:clamp(40px,12vw,54px)}
+  .stat span{font-size:12px}
+}
+.footer{color:#5b645c}
+
+/* --- Header / navigation: hamburger up to 900px, 44px targets ------------- */
+.brand-mark .ico{width:17px;height:17px}
+.language-picker select{min-height:44px;padding:0 30px 0 16px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23243b30' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center}
+.menu-toggle{width:44px;height:44px;padding:0;place-items:center;border-radius:12px;cursor:pointer}
+.menu-toggle .ico{width:26px;height:26px}
+.menu-toggle .ico-close,.menu-toggle[aria-expanded="true"] .ico-open{display:none}
+.menu-toggle[aria-expanded="true"] .ico-close{display:block}
+.nav>a:not(.nav-cta){display:inline-flex;align-items:center;min-height:44px;padding:0 6px}
+.nav .ico{width:1.1em;height:1.1em}
+@media(max-width:900px){
+  .topbar{height:66px}
+  .header-actions{margin-left:auto;margin-right:0;gap:6px}
+  .menu-toggle{display:grid}
+  .nav{display:none;position:absolute;z-index:5;top:66px;left:-32px;right:-32px;background:var(--paper);padding:12px 32px 22px;border-bottom:1px solid var(--line);box-shadow:0 18px 30px #243b3014;flex-direction:column;align-items:stretch;gap:0;font-size:17px}
+  .nav.open{display:flex}
+  .nav>a:not(.nav-cta){min-height:52px;padding:0;border-bottom:1px solid var(--line);font-size:17px;color:var(--ink)}
+  .nav-cta{margin-top:16px;min-height:52px;font-size:16px}
+}
+@media(max-width:800px){.nav{left:-20px;right:-20px;padding-inline:20px}}
+@media(max-width:600px){.nav{left:-18px;right:-18px;padding-inline:18px}}
+
+/* --- Hero ------------------------------------------------------------------ */
+.hero-actions{flex-wrap:wrap}
+.hero h1 em:after{transform-origin:left center;animation:mark-draw .9s .25s cubic-bezier(.3,.7,.2,1) both}
+@keyframes mark-draw{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.proof-star .ico{width:17px;height:17px}
+.caption-icon .ico{width:18px;height:18px}
+.note-symbol .ico{width:19px;height:19px}
+.portrait-sparkle .ico{width:26px;height:26px}
+.linkedin-arrow{width:15px;height:15px}
+@media(max-width:600px){.hero-actions{flex-direction:column;align-items:stretch}.hero-actions .button{width:100%}}
+
+/* --- Offers: bento layout --------------------------------------------------- */
+.cards{grid-template-columns:1.25fr 1fr;grid-auto-rows:auto;align-items:stretch}
+.offer:first-child{grid-row:span 2;background:var(--deep);border-color:var(--deep);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+.offer:first-child:before{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;background:#2f4c3d}
+.offer:first-child>*{position:relative}
+.offer:first-child .offer-icon{background:var(--green);color:var(--deep);width:52px;height:52px;border-radius:16px;margin-bottom:auto;align-self:flex-start}
+.offer:first-child .offer-icon .ico{width:26px;height:26px}
+.offer:first-child h3{font-size:clamp(26px,3vw,36px);line-height:1.1;letter-spacing:-.02em;color:#fff;margin:48px 0 12px}
+.offer:first-child p{color:#d3ddd6;max-width:380px}
+.offer:first-child .small-link{color:var(--green)}
+.offer-icon .ico{width:21px;height:21px}
+.offer-icon{color:var(--deep)}
+.small-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;margin-top:8px}
+.small-link .ico{transition:transform .18s}
+@media(hover:hover){.small-link:hover .ico{transform:translateX(4px)}}
+@media(max-width:800px){
+  .cards{grid-template-columns:1fr}
+  .offer:first-child{grid-row:auto}
+  .offer:first-child h3{margin-top:28px}
+}
+
+/* --- Pricing: two cards instead of a table ---------------------------------- */
+.price-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.price-card{display:flex;flex-direction:column;gap:16px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px}
+.price-card-head{display:flex;align-items:center;gap:12px}
+.price-icon{width:44px;height:44px;border-radius:14px;background:#eff4e4;color:var(--deep);display:grid;place-items:center}
+.price-icon .ico{width:22px;height:22px}
+.price-card h3{font:600 20px var(--display);letter-spacing:-.01em;margin:0}
+.price-amount{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 10px}
+.price-amount strong{font:800 clamp(38px,5vw,54px)/1 var(--display);letter-spacing:-.03em;color:var(--deep)}
+.price-amount span{color:var(--muted);font-size:15px}
+.price-duration,.price-detail{margin:0;color:var(--muted);font-size:15px;line-height:1.65}
+.price-card hr{border:0;border-top:1px dashed #d9ddd0;margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:6px 14px 6px 7px;border:1px solid #e3e8dc;border-radius:999px;background:#fff;font-size:14px;font-weight:700;color:#46534a}
+.chip .ico{width:24px;height:24px;padding:5px;border-radius:50%;background:#eff4e4;color:var(--deep)}
+.chip-discord .ico{background:#5865f2;color:#fff}
+.chip-miro .ico{background:#ffe8aa;color:#34332d}
+.chip-meet .ico{background:#e7f1eb;color:#258251}
+.pricing-note{margin-top:18px}
+@media(max-width:700px){.price-cards{grid-template-columns:1fr}.price-card{padding:22px}}
+@media(min-width:1000px){.price-card{padding:40px;gap:22px}.price-card h3{font-size:26px}.price-amount span,.price-duration,.price-detail{font-size:18px}.chip{font-size:15px}}
+
+/* --- Booking / contact -------------------------------------------------------- */
+.booking-icon .ico{width:23px;height:23px}
+.phone-icon .ico{width:24px;height:24px}
+.stars .ico{width:18px;height:18px}
+.calendar-frame{border-radius:16px;box-shadow:0 12px 40px #243b3010}
+@media(max-width:800px){.calendar-frame iframe{height:min(720px,82svh)}}
+
+/* --- Footer: comfortable tap targets ------------------------------------------- */
+.footer-links a{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+.footer-links{row-gap:0}
+
+/* --- Sticky mobile CTA ---------------------------------------------------------- */
+.sticky-cta{display:none}
+@media(max-width:800px){
+  .sticky-cta{display:block;position:fixed;left:0;right:0;bottom:0;z-index:20;padding:24px 18px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--paper) 45%);pointer-events:none;visibility:hidden;transform:translateY(110%);transition:transform .25s,visibility 0s .25s}
+  .sticky-cta.show{visibility:visible;transform:none;transition:transform .25s}
+  .sticky-cta .button{width:100%;pointer-events:auto;box-shadow:3px 3px 0 var(--deep),0 10px 28px #243b3030}
+  .footer{padding-bottom:calc(28px + 76px)}
+}
+
+/* --- Scroll reveal (class added by app.js only when motion is allowed) ---------- */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0ms)}
+.reveal.in{opacity:1;transform:none}
+
+/* --- Touch devices: no sticky hover states --------------------------------------- */
+@media(hover:none){
+  .offer:hover{transform:none;box-shadow:none}
+  .linkedin-link:hover{transform:none;box-shadow:none;border-color:#dfe5db}
+}
+
+/* --- Reduced motion --------------------------------------------------------------- */
+@media(prefers-reduced-motion:reduce){
+  .hero h1 em:after{animation:none}
+  .reveal{opacity:1;transform:none}
+  .sticky-cta{transition:none}
+}
+@media(max-width:600px){.portrait-note{bottom:auto;top:56px;right:0;font-size:12px}}

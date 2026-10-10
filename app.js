@@ -66,7 +66,9 @@ function setLanguage(language) {
   document.querySelector("#language-label").textContent = copy.language;
   document.querySelector(".topbar .brand").setAttribute("aria-label", chosen === "pl" ? "Strona główna Brightside" : "Brightside home");
   document.querySelector(".nav").setAttribute("aria-label", chosen === "pl" ? "Nawigacja główna" : "Main navigation");
-  document.querySelector(".nav-cta").href = chosen === "pl" ? "#contact" : "#booking";
+  const ctaTarget = chosen === "pl" ? "#contact" : "#booking";
+  document.querySelector(".nav-cta").href = ctaTarget;
+  document.querySelector(".sticky-cta .button").href = ctaTarget;
   document.querySelector(".portrait-scene").setAttribute("aria-label", chosen === "pl" ? "Zdjęcie kociego towarzysza nauki korepetytora" : "Photo of the tutor’s feline study buddy");
   document.querySelector(".stats").setAttribute("aria-label", chosen === "pl" ? "Najważniejsze informacje o korepetycjach" : "Tutoring highlights");
   const bookingUrl = getGoogleBookingUrl();
@@ -102,18 +104,23 @@ function getGoogleBookingUrl() {
 
 const menuToggle = document.querySelector(".menu-toggle");
 const nav = document.querySelector(".nav");
-menuToggle.addEventListener("click", () => {
-  const open = nav.classList.toggle("open");
+function setMenuOpen(open) {
+  nav.classList.toggle("open", open);
   menuToggle.setAttribute("aria-expanded", String(open));
   const language = document.documentElement.lang;
   menuToggle.setAttribute("aria-label", open ? (language === "pl" ? "Zamknij nawigację" : "Close navigation") : (language === "pl" ? "Otwórz nawigację" : "Open navigation"));
-  menuToggle.textContent = open ? "×" : "☰";
+}
+menuToggle.addEventListener("click", () => setMenuOpen(!nav.classList.contains("open")));
+nav.querySelectorAll("a").forEach(link => link.addEventListener("click", () => setMenuOpen(false)));
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && nav.classList.contains("open")) {
+    setMenuOpen(false);
+    menuToggle.focus();
+  }
 });
-nav.querySelectorAll("a").forEach(link => link.addEventListener("click", () => {
-  nav.classList.remove("open");
-  menuToggle.setAttribute("aria-expanded", "false");
-  menuToggle.textContent = "☰";
-}));
+document.addEventListener("click", event => {
+  if (nav.classList.contains("open") && !nav.contains(event.target) && !menuToggle.contains(event.target)) setMenuOpen(false);
+});
 document.querySelector("#language-select").addEventListener("change", event => setLanguage(event.target.value));
 document.querySelector("#year").textContent = new Date().getFullYear();
 document.querySelector("#show-phone").addEventListener("click", () => {
@@ -142,3 +149,38 @@ document.querySelector("#show-phone").addEventListener("click", () => {
   button.querySelector("[data-i18n]").textContent = reveal ? copy.hidePhone : copy.showPhone;
 });
 setLanguage(getInitialLanguage());
+
+// Scroll reveal and sticky mobile CTA. Both are progressive enhancements:
+// without IntersectionObserver (or with reduced motion) content just shows.
+if ("IntersectionObserver" in window) {
+  const stickyCta = document.querySelector("#sticky-cta");
+  const hideStickyWhileVisible = new Set();
+  const stickyObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => entry.isIntersecting ? hideStickyWhileVisible.add(entry.target) : hideStickyWhileVisible.delete(entry.target));
+    stickyCta.classList.toggle("show", hideStickyWhileVisible.size === 0);
+  }, { threshold: 0.15 });
+  document.querySelectorAll(".hero-actions, #booking, #contact").forEach(element => stickyObserver.observe(element));
+
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const element = entry.target;
+        revealObserver.unobserve(element);
+        element.classList.add("in");
+        // Drop the helper classes afterwards so hover transitions are not delayed.
+        setTimeout(() => {
+          element.classList.remove("reveal", "in");
+          element.style.removeProperty("--d");
+        }, 1200);
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+    document.querySelectorAll(".stats, .section-head, .offer, .price-card, .booking-panel, .quote-inner, .contact").forEach((element, index) => {
+      if (element.classList.contains("offer") || element.classList.contains("price-card")) {
+        element.style.setProperty("--d", `${(Array.prototype.indexOf.call(element.parentElement.children, element)) * 90}ms`);
+      }
+      element.classList.add("reveal");
+      revealObserver.observe(element);
+    });
+  }
+}
