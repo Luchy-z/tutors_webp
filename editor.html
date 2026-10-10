@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edytor strony — Brightside</title>
+<style>
+  :root{--bg:#1b1c1e;--panel:#252628;--panel2:#2d2f31;--line:#3a3c3f;--text:#e8e9ea;--dim:#9a9da1;--accent:#0d99ff;--accent2:#0b7fd6;--danger:#f24822;--warn:#ffcd29}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{display:grid;grid-template-rows:48px 1fr;grid-template-columns:270px 1fr 340px;grid-template-areas:"bar bar bar" "layers stage props";background:var(--bg);color:var(--text);font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{cursor:pointer}
+  .bar{grid-area:bar;display:flex;align-items:center;gap:12px;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--line);overflow-x:auto}
+  .bar .grow{flex:1}
+  .title{font-weight:700;letter-spacing:.2px;white-space:nowrap}
+  .status{color:var(--dim);font-size:12px;white-space:nowrap}
+  .status.dirty{color:var(--warn)}
+  .seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:2px;gap:2px}
+  .seg button{border:0;background:transparent;padding:4px 10px;border-radius:5px;color:var(--dim);white-space:nowrap}
+  .seg button[aria-pressed="true"]{background:var(--panel2);color:var(--text)}
+  .btn{border:1px solid var(--line);background:var(--panel2);padding:5px 12px;border-radius:7px;white-space:nowrap}
+  .btn:hover:not(:disabled){border-color:#55585c}
+  .btn:disabled{opacity:.4;cursor:default}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  .btn.primary:hover{background:var(--accent2)}
+  .btn.danger{color:#ff8a70}
+  .btn.small{padding:3px 9px;font-size:12px}
+  .check{display:flex;align-items:center;gap:6px;color:var(--dim);white-space:nowrap;cursor:pointer}
+  .check input{accent-color:var(--accent)}
+  aside{background:var(--panel);overflow:auto}
+  #layers{grid-area:layers;border-right:1px solid var(--line)}
+  #props{grid-area:props;border-left:1px solid var(--line);display:flex;flex-direction:column}
+  .panel-title{padding:12px 14px 6px;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim)}
+  .hint{color:var(--dim);font-size:12px;margin:6px 0 0}
+  /* layers */
+  .layer{display:flex;align-items:center;gap:4px;padding:5px 6px 5px 8px;margin:1px 6px;border-radius:6px;border-top:2px solid transparent;border-bottom:2px solid transparent;cursor:pointer;user-select:none}
+  .layer:hover{background:var(--panel2)}
+  .layer.selected{background:#0d99ff33}
+  .layer.hidden-layer .name{opacity:.4;text-decoration:line-through}
+  .layer.dragging{opacity:.4}
+  .layer.drop-before{border-top-color:var(--accent)}
+  .layer.drop-after{border-bottom-color:var(--accent)}
+  .layer .grip{color:var(--dim);cursor:grab;width:14px;text-align:center}
+  .layer .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .layer.item{margin-left:26px;color:var(--dim);font-size:12px}
+  .layer.item .name{flex:1}
+  .layer .empty-tag{font-size:11px;color:var(--dim)}
+  .icon-btn{border:0;background:transparent;color:var(--dim);padding:2px 5px;border-radius:4px;line-height:1;min-width:20px}
+  .icon-btn:hover:not(:disabled){background:#ffffff14;color:var(--text)}
+  .icon-btn:disabled{opacity:.25;cursor:default}
+  .caret{transition:transform .12s}
+  .caret.open{transform:rotate(90deg)}
+  /* tabs */
+  .tabs{display:flex;border-bottom:1px solid var(--line);flex:none}
+  .tabs button{flex:1;padding:11px 0;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--dim);font-weight:600;font-size:12px;white-space:nowrap}
+  .tabs button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent)}
+  .tabs .badge{display:inline-block;min-width:16px;padding:0 4px;margin-left:3px;border-radius:8px;background:var(--warn);color:#000;font-size:10px;line-height:16px}
+  .tabpane{overflow:auto;flex:1;padding-bottom:50px}
+  .tabpane[hidden]{display:none}
+  .intro{padding:10px 14px;color:var(--dim);font-size:12px;border-bottom:1px solid var(--line);background:#2a2c2e}
+  /* groups & controls */
+  details.group{border-bottom:1px solid var(--line)}
+  details.group>summary{padding:11px 14px;cursor:pointer;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600;list-style:none;display:flex;align-items:center;gap:6px}
+  details.group>summary::before{content:"▸";transition:transform .12s;display:inline-block}
+  details.group[open]>summary::before{transform:rotate(90deg)}
+  details.group>.body{padding:0 14px 12px}
+  .ctl{position:relative;padding:8px 0 8px 12px;border-radius:6px}
+  .ctl:hover{background:#ffffff08}
+  .ctl .dot{position:absolute;left:0;top:15px;width:6px;height:6px;border-radius:50%;background:transparent}
+  .ctl.changed .dot{background:var(--warn)}
+  .ctl-head{display:flex;align-items:center;gap:8px;min-height:22px}
+  .ctl-head .lbl{flex:1;font-weight:500}
+  .ctl .reset{visibility:hidden}
+  .ctl.changed .reset{visibility:visible}
+  .ctl .desc{margin:4px 0 0;color:var(--dim);font-size:11.5px;line-height:1.4}
+  .ctl-body,.w-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+  .w-row{margin-top:0}
+  .ctl-head .w-row{flex:none}
+  input[type=text],input[type=url],input[type=email],select,.search,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+  input[type=text]:focus,select:focus,.search:focus,textarea:focus{outline:1px solid var(--accent);border-color:var(--accent)}
+  input.invalid{border-color:var(--danger)}
+  input[type=color]{width:34px;height:28px;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--bg);flex:none}
+  input.hex{width:92px;font-family:ui-monospace,Consolas,monospace}
+  input[type=range]{flex:1;accent-color:var(--accent);min-width:0}
+  .val{width:46px;text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
+  .mini{border:0;background:transparent;color:var(--dim);padding:2px 5px;border-radius:4px}
+  .mini:hover{color:var(--text);background:#ffffff14}
+  .switch{position:relative;width:34px;height:20px;flex:none;border-radius:20px;border:0;background:#4a4d51;padding:0}
+  .switch:after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .15s}
+  .switch[aria-checked="true"]{background:var(--accent)}
+  .switch[aria-checked="true"]:after{transform:translateX(14px)}
+  .ctl-body .seg{flex:1}
+  .ctl-body .seg button{flex:1}
+  /* presets */
+  .presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 0}
+  .preset{display:flex;flex-direction:column;gap:6px;padding:8px;background:var(--bg);border:1px solid var(--line);border-radius:8px;text-align:left}
+  .preset:hover{border-color:var(--accent)}
+  .preset .sw{display:flex;height:16px;border-radius:4px;overflow:hidden;border:1px solid #0006}
+  .preset .sw i{flex:1}
+  /* tools */
+  .tools{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}
+  .tool{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg);border:1px solid var(--line);border-radius:8px;text-align:left}
+  .tool[aria-pressed="true"]{border-color:var(--accent);background:#0d99ff22}
+  .tool svg{width:22px;height:22px;padding:4px;border-radius:50%;flex:none;fill:currentColor}
+  .tool span{flex:1}
+  .tool .tick{visibility:hidden;color:var(--accent)}
+  .tool[aria-pressed="true"] .tick{visibility:visible}
+  /* photo */
+  .photo-thumb{width:48px;height:48px;border-radius:8px;object-fit:cover;background:var(--bg);border:1px solid var(--line);flex:none}
+  /* testimonials */
+  .opinions{width:100%;display:flex;flex-direction:column;gap:8px}
+  .opinion-card{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:6px}
+  .opinion-card .row2{display:flex;gap:6px}
+  .opinion-card .tools-row{display:flex;justify-content:flex-end;gap:2px}
+  /* stage */
+  #stage{grid-area:stage;overflow:auto;display:grid;place-items:start center;padding:24px;background:#141516;background-image:radial-gradient(#2a2b2d 1px,transparent 1px);background-size:18px 18px}
+  #frameWrap{position:relative;box-shadow:0 8px 40px #0008;border-radius:4px;overflow:hidden;background:#fff}
+  #frameWrap.phone{border-radius:28px;box-shadow:0 0 0 8px #0b0b0c,0 8px 40px #000a}
+  #preview{border:0;transform-origin:top left;display:block;background:#fff}
+  .zoom{color:var(--dim);font-size:12px;min-width:38px}
+  /* text */
+  .text-card{padding:12px 14px;border-bottom:1px solid var(--line)}
+  .text-card code{background:var(--bg);padding:1px 6px;border-radius:4px}
+  .text-card label.cap{display:flex;align-items:center;justify-content:space-between;margin:10px 0 4px;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.8px}
+  textarea{min-height:70px;resize:vertical;line-height:1.45}
+  .search{margin:10px 14px;width:calc(100% - 28px)}
+  .key-row{display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid #ffffff0d;padding:7px 14px}
+  .key-row:hover{background:var(--panel2)}
+  .key-row.selected{background:#0d99ff33}
+  .key-row .k{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--dim)}
+  .key-row .k i{color:var(--warn);font-style:normal;margin-left:6px}
+  .key-row .v{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+  .empty{color:var(--dim);padding:14px}
+  /* changes */
+  .change{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid #ffffff0d}
+  .change:hover{background:var(--panel2)}
+  .change .what{flex:1;min-width:0;cursor:pointer}
+  .change .what b{display:block;font-weight:500}
+  .change .what small{display:block;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .change .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid #fff4}
+  .change-group{padding:10px 14px 4px;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim)}
+  #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#000;color:#fff;border:1px solid var(--line);padding:10px 14px;border-radius:10px;display:none;gap:12px;align-items:center;z-index:10;box-shadow:0 8px 30px #0009;max-width:min(620px,90vw)}
+  #toast.show{display:flex}
+  #loading{position:absolute;inset:0;display:grid;place-items:center;background:var(--bg);color:var(--dim);z-index:5;padding:20px;text-align:center}
+  #loading[hidden]{display:none}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="title">Edytor strony</span>
+  <span class="status" id="status">Ładowanie…</span>
+  <span class="grow"></span>
+  <div class="seg" id="deviceSeg" role="group" aria-label="Rozmiar podglądu">
+    <button type="button" data-device="desktop" aria-pressed="true">Komputer</button>
+    <button type="button" data-device="tablet" aria-pressed="false">Tablet</button>
+    <button type="button" data-device="phone" aria-pressed="false">Telefon</button>
+  </div>
+  <span class="zoom" id="zoom"></span>
+  <div class="seg" id="langSeg" role="group" aria-label="Język podglądu">
+    <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button type="button" data-lang="pl" aria-pressed="true">PL</button>
+  </div>
+  <label class="check" title="Gdy najedziesz na opcję, podgląd obrysuje elementy, które ona zmienia"><input type="checkbox" id="hlToggle" checked> Pokazuj, co zmienia</label>
+  <span class="grow"></span>
+  <button class="btn" id="compare" type="button" title="Przytrzymaj, aby zobaczyć stronę bez Twoich zmian">Przytrzymaj: oryginał</button>
+  <button class="btn" id="undo" type="button" title="Cofnij (Ctrl+Z)" disabled>Cofnij</button>
+  <button class="btn" id="redo" type="button" title="Ponów (Ctrl+Shift+Z)" disabled>Ponów</button>
+  <button class="btn danger" id="reset" type="button">Resetuj</button>
+  <button class="btn" id="download" type="button" title="Pobierz plik site-config.js">Pobierz</button>
+  <button class="btn primary" id="save" type="button" title="Zapisz do site-config.js (Ctrl+S)">Zapisz</button>
+</header>
+
+<aside id="layers" aria-label="Struktura strony">
+  <div class="panel-title">Struktura strony</div>
+  <div id="layerList"></div>
+  <p class="hint" style="padding:6px 14px">Przeciągaj sekcje lub używaj strzałek, aby zmienić kolejność. Oko ukrywa sekcję razem z linkiem w menu. Strzałka po lewej rozwija pojedyncze elementy sekcji.</p>
+</aside>
+
+<main id="stage">
+  <div id="frameWrap"><div id="loading">Ładowanie podglądu…</div><iframe id="preview" title="Podgląd strony" src="index.html?edit=1"></iframe></div>
+</main>
+
+<aside id="props">
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tab-style" aria-selected="true" aria-controls="pane-style">Styl</button>
+    <button type="button" role="tab" id="tab-section" aria-selected="false" aria-controls="pane-section">Sekcja</button>
+    <button type="button" role="tab" id="tab-text" aria-selected="false" aria-controls="pane-text">Tekst</button>
+    <button type="button" role="tab" id="tab-content" aria-selected="false" aria-controls="pane-content">Treść</button>
+    <button type="button" role="tab" id="tab-changes" aria-selected="false" aria-controls="pane-changes">Zmiany<span class="badge" id="changesBadge" hidden>0</span></button>
+  </div>
+  <div class="tabpane" id="pane-style" role="tabpanel" aria-labelledby="tab-style"></div>
+  <div class="tabpane" id="pane-section" role="tabpanel" aria-labelledby="tab-section" hidden></div>
+  <div class="tabpane" id="pane-text" role="tabpanel" aria-labelledby="tab-text" hidden></div>
+  <div class="tabpane" id="pane-content" role="tabpanel" aria-labelledby="tab-content" hidden></div>
+  <div class="tabpane" id="pane-changes" role="tabpanel" aria-labelledby="tab-changes" hidden></div>
+</aside>
+
+<div id="toast" role="status"></div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const getPath = (object, path) => path.split(".").reduce((o, k) => o?.[k], object);
+  const setPath = (object, path, value) => {
+    const keys = path.split(".");
+    const last = keys.pop();
+    keys.reduce((o, k) => o[k], object)[last] = value;
+  };
+  function el(tag, attrs = {}, ...children) {
+    const node = document.createElement(tag);
+    for (const [key, value] of Object.entries(attrs)) {
+      if (key === "class") node.className = value;
+      else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+      else if (value === true) node.setAttribute(key, "");
+      else if (value !== false && value != null) node.setAttribute(key, value);
+    }
+    for (const child of children.flat()) if (child != null) node.append(child);
+    return node;
+  }
+  function svgIcon(path, color) {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", path);
+    svg.append(p);
+    return svg;
+  }
+
+  const iframe = $("#preview");
+  const stage = $("#stage");
+  const frameWrap = $("#frameWrap");
+  const DEVICES = { desktop: 1440, tablet: 820, phone: 390 };
+  const SECTION_NAMES = { header: "Nagłówek i menu", hero: "Hero (góra strony)", stats: "Trzy liczby", lessons: "Oferta (karty)", pricing: "Cennik", booking: "Rezerwacja (kalendarz)", opinions: "Opinie", reviews: "Cytat (ciemny pas)", contact: "Kontakt", footer: "Stopka" };
+  const DRAFT_KEY = "brightside-editor-draft";
+  const HL_KEY = "brightside-editor-highlight";
+  const PRESETS = [
+    ["Oryginał", { ink: "#202821", muted: "#69716a", paper: "#f8f7f2", green: "#d9f36a", deep: "#243b30", line: "#e7e7df" }],
+    ["Ocean", { ink: "#13222d", muted: "#5b6b78", paper: "#f4f9fb", green: "#9be3ff", deep: "#0f3a52", line: "#dde8ee" }],
+    ["Zachód", { ink: "#2b1d1a", muted: "#7a6460", paper: "#fff7ef", green: "#ffc978", deep: "#5a2e2a", line: "#f0e0d2" }],
+    ["Lawenda", { ink: "#241f33", muted: "#6c6684", paper: "#f8f6fd", green: "#cdb8ff", deep: "#3a2d6b", line: "#e6e1f3" }],
+    ["Mięta", { ink: "#12312a", muted: "#5d7b73", paper: "#f3faf7", green: "#8ff0c4", deep: "#0e4a3b", line: "#dcebe5" }],
+    ["Mono", { ink: "#111111", muted: "#666666", paper: "#f6f6f4", green: "#ffe14d", deep: "#111111", line: "#e3e3df" }]
+  ];
+  const COLOR_NAMES = { green: "Kolor akcentu", deep: "Kolor główny (ciemny)", paper: "Tło strony", ink: "Kolor tekstu", muted: "Kolor tekstu pomocniczego", line: "Kolor linii" };
+
+  let defaults, fontList, usedKeys, defaultTranslations, defaultPhoto, items = {}, toolRegistry = {}, sectionSelectors = {};
+  let state, lastCommitted;
+  let built = false, dirty = false, device = "desktop", previewLang = "pl", fileHandle = null;
+  let selectedKey = null, selectedSection = null, highlightOn = localStorage.getItem(HL_KEY) !== "0";
+  const expanded = new Set(["hero"]);
+  const undoStack = [], redoStack = [];
+  const syncers = [];     // controls that live for the whole session
+  const sectionSyncers = []; // controls rebuilt with the Sekcja pane
+  const textSyncers = [];    // controls rebuilt with the Tekst pane
+  const controlDefs = []; // every static control, used by the "Zmiany" tab
+
+  // ---- Preview messaging ---------------------------------------------------------
+  const send = message => iframe.contentWindow?.postMessage(message, "*");
+  const pushToPreview = (config = state) => send({ type: "config", config });
+  const sendSelect = (kind, key) => send({ type: "select", kind, key });
+  let unflashTimer;
+  function flash(targets, label, { note, scroll = true } = {}) {
+    if (!highlightOn || !targets?.length) return;
+    clearTimeout(unflashTimer);
+    send({ type: "flash", selectors: targets, label, note, scroll });
+  }
+  function unflashSoon() {
+    clearTimeout(unflashTimer);
+    unflashTimer = setTimeout(() => send({ type: "unflash" }), 250);
+  }
+
+  // ---- State, history, drafts -----------------------------------------------------
+  function setStatus() {
+    const status = $("#status");
+    status.textContent = dirty ? "Niezapisane zmiany" : "Wszystko zapisane";
+    status.classList.toggle("dirty", dirty);
+  }
+  function updateHistoryButtons() {
+    $("#undo").disabled = !undoStack.length;
+    $("#redo").disabled = !redoStack.length;
+  }
+  let draftTimer;
+  function saveDraft() {
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(() => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch {} }, 400);
+  }
+  function commit() {
+    const now = JSON.stringify(state);
+    if (now === lastCommitted) return;
+    undoStack.push(lastCommitted);
+    if (undoStack.length > 100) undoStack.shift();
+    redoStack.length = 0;
+    lastCommitted = now;
+    dirty = true;
+    setStatus();
+    updateHistoryButtons();
+    saveDraft();
+    refreshChanges();
+  }
+  function restore(json) {
+    state = JSON.parse(json);
+    lastCommitted = json;
+    dirty = true;
+    setStatus();
+    pushToPreview();
+    updateHistoryButtons();
+    saveDraft();
+    syncAll();
+  }
+  const undo = () => { if (undoStack.length) { redoStack.push(lastCommitted); restore(undoStack.pop()); } };
+  const redo = () => { if (redoStack.length) { undoStack.push(lastCommitted); restore(redoStack.pop()); } };
+
+  // Change structure (order, hidden items, lists): apply, commit and rebuild what depends on it.
+  function mutate(fn) {
+    fn(state);
+    pushToPreview();
+    commit();
+    renderLayers();
+    renderSectionPane();
+    renderContentLists();
+  }
+  function syncAll() {
+    renderContentLists();
+    renderLayers();
+    renderSectionPane();
+    renderTextEditor();
+    renderKeyList();
+    refreshChanges();
+  }
+
+  // ---- Accessors: how a control reads/writes the state ------------------------------
+  function pathAccessor(path) {
+    return {
+      get: () => getPath(state, path),
+      set: value => { setPath(state, path, value); pushToPreview(); },
+      reset: () => { setPath(state, path, clone(getPath(defaults, path))); pushToPreview(); },
+      changed: () => !same(getPath(state, path), getPath(defaults, path))
+    };
+  }
+
+  // ---- Widgets ------------------------------------------------------------------------
+  const colorW = (optional = false) => acc => {
+    const picker = el("input", { type: "color", "aria-label": "Wybierz kolor" });
+    const hex = el("input", { type: "text", class: "hex", maxlength: 7, spellcheck: "false", placeholder: optional ? "brak" : "#rrggbb", "aria-label": "Kod koloru" });
+    const sync = () => { const v = acc.get(); picker.value = v || "#ffffff"; hex.value = v || ""; };
+    picker.addEventListener("input", () => { acc.set(picker.value.toLowerCase()); hex.value = picker.value; });
+    picker.addEventListener("change", commit);
+    hex.addEventListener("change", () => {
+      const v = hex.value.trim().toLowerCase();
+      if (/^#[0-9a-f]{6}$/.test(v) || (optional && v === "")) { acc.set(v); commit(); }
+      sync();
+    });
+    const node = el("div", { class: "w-row" }, picker, hex);
+    if (optional) node.append(el("button", { type: "button", class: "mini", title: "Bez koloru", onclick: () => { acc.set(""); commit(); sync(); node.dispatchEvent(new Event("change", { bubbles: true })); } }, "Wyczyść"));
+    return { node, sync };
+  };
+  const rangeW = ({ min, max, step, format = v => v }) => acc => {
+    const input = el("input", { type: "range", min, max, step, "aria-label": "Suwak" });
+    const value = el("span", { class: "val" });
+    const sync = () => { const v = acc.get(); input.value = v; value.textContent = format(Number(v)); };
+    input.addEventListener("input", () => { acc.set(Number(input.value)); value.textContent = format(Number(input.value)); });
+    input.addEventListener("change", commit);
+    return { node: el("div", { class: "w-row", style: "width:100%" }, input, value), sync };
+  };
+  const selectW = options => acc => {
+    const select = el("select", { "aria-label": "Wybierz" }, options.map(o => el("option", { value: Array.isArray(o) ? o[0] : o }, Array.isArray(o) ? o[1] : o)));
+    const sync = () => { select.value = String(acc.get()); };
+    select.addEventListener("change", () => { acc.set(Array.isArray(options[0]) && typeof options[0][0] === "number" ? Number(select.value) : select.value); commit(); });
+    return { node: select, sync };
+  };
+  const segW = options => acc => {
+    const buttons = options.map(([value, text]) => el("button", { type: "button", "data-v": value }, text));
+    const seg = el("div", { class: "seg", role: "group" }, buttons);
+    const sync = () => buttons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === String(acc.get()))));
+    buttons.forEach(b => b.addEventListener("click", () => { acc.set(b.dataset.v); commit(); sync(); seg.dispatchEvent(new Event("change", { bubbles: true })); }));
+    return { node: seg, sync };
+  };
+  const toggleW = () => acc => {
+    const button = el("button", { type: "button", class: "switch", role: "switch", "aria-label": "Włącz lub wyłącz" });
+    const sync = () => button.setAttribute("aria-checked", String(Boolean(acc.get())));
+    button.addEventListener("click", () => { acc.set(!acc.get()); commit(); sync(); button.dispatchEvent(new Event("change", { bubbles: true })); });
+    return { node: button, sync };
+  };
+  const textW = ({ placeholder = "", maxlength = 200, validate } = {}) => acc => {
+    const input = el("input", { type: "text", placeholder, maxlength, spellcheck: "false", "aria-label": placeholder || "Pole tekstowe" });
+    const check = () => input.classList.toggle("invalid", Boolean(validate && input.value && !validate(input.value)));
+    const sync = () => { input.value = acc.get() || ""; check(); };
+    input.addEventListener("input", () => { check(); acc.set(input.value.trim()); });
+    input.addEventListener("change", commit);
+    return { node: input, sync };
+  };
+
+  const defOf = new WeakMap();
+  // A labelled control: change dot, reset button, explanation and "what does this affect" outline.
+  function ctl(def, acc, widget, { bucket = null } = {}) {
+    const w = widget(acc);
+    const reset = el("button", { type: "button", class: "mini reset", title: "Przywróć wartość domyślną", "aria-label": `Przywróć domyślną wartość: ${def.label}` }, "↺");
+    const wrap = el("div", { class: "ctl" },
+      el("span", { class: "dot", title: "Zmienione względem oryginału" }),
+      el("div", { class: "ctl-head" }, el("span", { class: "lbl" }, def.label), def.inline ? w.node : null, reset),
+      def.inline ? null : el("div", { class: "ctl-body" }, w.node),
+      def.desc ? el("p", { class: "desc" }, def.desc) : null);
+    const refresh = () => wrap.classList.toggle("changed", acc.changed());
+    const sync = () => { w.sync(); refresh(); };
+    reset.addEventListener("click", () => { acc.reset(); commit(); sync(); });
+    for (const type of ["pointerenter", "focusin"]) wrap.addEventListener(type, () => flash(def.targets, def.label, { note: def.note }));
+    for (const type of ["input", "change"]) wrap.addEventListener(type, () => { refresh(); flash(def.targets, def.label, { note: def.note, scroll: false }); });
+    for (const type of ["pointerleave", "focusout"]) wrap.addEventListener(type, unflashSoon);
+    sync();
+    (bucket || syncers).push(sync);
+    if (!bucket) controlDefs.push({ def, acc });
+    defOf.set(wrap, def);
+    return wrap;
+  }
+  const group = (title, open, ...children) => {
+    for (const child of children.flat()) { const d = defOf.get(child); if (d) d.group = title; }
+    return el("details", { class: "group", open }, el("summary", {}, title), el("div", { class: "body" }, children));
+  };
+
+  // ---- Style tab -----------------------------------------------------------------------
+  const sel = {
+    buttons: [".button", ".nav-cta"],
+    cards: [".offer", ".price-card", ".contact-card", ".booking-message", ".calendar-frame", ".opinion"]
+  };
+
+  function presetsBlock() {
+    const grid = el("div", { class: "presets" }, PRESETS.map(([name, colors]) => {
+      const button = el("button", { type: "button", class: "preset", title: `Ustaw kolory: ${name}` },
+        el("span", { class: "sw" }, ["paper", "green", "deep", "ink"].map(k => el("i", { style: `background:${colors[k]}` }))), name);
+      button.addEventListener("click", () => { Object.assign(state.colors, colors); pushToPreview(); commit(); syncAll(); });
+      button.addEventListener("pointerenter", () => flash([".nav-cta", ".button", ".quote-section", ".hero", ".brand-mark"], `Paleta: ${name}`));
+      button.addEventListener("pointerleave", unflashSoon);
+      return button;
+    }));
+    return grid;
+  }
+
+  function buildStylePane() {
+    const pane = $("#pane-style");
+    pane.append(el("div", { class: "intro" }, "Najedź na dowolną opcję: podgląd obrysuje na niebiesko elementy, które ona zmienia. Żółta kropka oznacza zmianę względem oryginału, ↺ ją cofa."));
+    const P = pathAccessor;
+    pane.append(
+      group("Kolory", true, presetsBlock(),
+        ctl({ label: COLOR_NAMES.green, desc: "Przyciski, podkreślenie nagłówka, plakietki i numery kroków.", targets: [".nav-cta", ".button", ".brand-mark", ".hero h1 em", ".proof-star", ".caption-icon", ".booking-steps li"] }, P("colors.green"), colorW()),
+        ctl({ label: COLOR_NAMES.deep, desc: "Ciemny pas z cytatem, duża karta oferty, ceny, obrysy przycisków i ramka kalendarza.", targets: [".quote-section", ".offer:first-child", ".price-amount strong", ".calendar-frame"] }, P("colors.deep"), colorW()),
+        ctl({ label: COLOR_NAMES.paper, desc: "Tło całej strony i menu.", targets: [".hero", ".stats", "#lessons", "#pricing", "#booking", "#contact"] }, P("colors.paper"), colorW()),
+        ctl({ label: COLOR_NAMES.ink, desc: "Nagłówki, nazwa marki i główny tekst.", targets: ["h1", "h2", "h3", ".brand", ".stat strong"] }, P("colors.ink"), colorW()),
+        ctl({ label: COLOR_NAMES.muted, desc: "Opisy pod nagłówkami, akapity w kartach, uwagi.", targets: [".lead", ".section-desc", ".offer p", ".price-duration", ".pricing-note", ".tutor-quick-info p"] }, P("colors.muted"), colorW()),
+        ctl({ label: COLOR_NAMES.line, desc: "Cienkie linie: pod menu, wokół liczb, w stopce i na kartach.", targets: [".topbar", ".stats", ".price-card", ".footer"] }, P("colors.line"), colorW())),
+      group("Czcionki", true,
+        ctl({ label: "Czcionka nagłówków", desc: "Duże tytuły, nazwa marki, ceny i liczby.", targets: ["h1", "h2", "h3", ".brand", ".price-amount strong", ".stat strong"] }, P("fonts.display"), selectW(fontList)),
+        ctl({ label: "Czcionka tekstu", desc: "Akapity, menu i napisy na przyciskach. Czcionki ładują się z Google Fonts.", targets: [".lead", ".section-desc", ".offer p", ".nav a", ".button"] }, P("fonts.sans"), selectW(fontList))),
+      group("Kształty", true,
+        ctl({ label: "Zaokrąglenie kart", desc: "Karty ofert, cen, kontaktu, opinii i ramka kalendarza.", targets: sel.cards }, P("shape.cardRadius"), rangeW({ min: 0, max: 40, step: 1, format: v => v + " px" })),
+        ctl({ label: "Kształt przycisków", desc: "Wszystkie przyciski na stronie, także w menu.", targets: sel.buttons }, P("shape.buttonShape"), segW([["pill", "Pigułka"], ["rounded", "Zaokrąglone"], ["square", "Kwadratowe"]])),
+        ctl({ label: "Cień przycisków", desc: "Twardy „naklejkowy” cień pod przyciskami i ramką kalendarza.", targets: [...sel.buttons, ".calendar-frame"], inline: true }, P("shape.buttonShadow"), toggleW())),
+      group("Układ i odstępy", false,
+        ctl({ label: "Odstępy między sekcjami", desc: "Ile powietrza jest nad i pod każdą dużą sekcją.", targets: [".section"] }, P("spacing.section"), rangeW({ min: 0.4, max: 1.8, step: 0.05, format: v => v.toFixed(2) + "×" })),
+        ctl({ label: "Szerokość treści (komputer)", desc: "Maksymalna szerokość strony na dużym ekranie.", targets: [".wrap"], note: "widoczne na szerokim ekranie" }, P("layout.contentWidth"), rangeW({ min: 960, max: 1680, step: 20, format: v => v + " px" }))),
+      group("Górna część (hero)", false,
+        ctl({ label: "Strona zdjęcia", desc: "Zdjęcie po prawej albo po lewej od tekstu (na telefonie zawsze pod tekstem).", targets: [".hero .portrait-scene", ".hero-copy"] }, P("hero.photoSide"), segW([["right", "Prawa"], ["left", "Lewa"]])),
+        ctl({ label: "Kształt zdjęcia", desc: "Rama wokół zdjęcia korepetytora.", targets: [".portrait-frame"] }, P("hero.photoShape"), segW([["arch", "Łuk"], ["rounded", "Prostokąt"], ["oval", "Owal"]])),
+        ctl({ label: "Ozdoby wokół zdjęcia", desc: "Tło-plama, gwiazdka i dymek „Każde pytanie mile widziane”.", targets: [".portrait-note", ".portrait-sparkle", ".portrait-orbit"], inline: true }, P("hero.decorations"), toggleW()),
+        ctl({ label: "Kadr zdjęcia: poziomo", desc: "Przesuwa widoczny fragment zdjęcia w lewo lub w prawo.", targets: [".portrait-frame"] }, P("hero.focusX"), rangeW({ min: 0, max: 100, step: 1, format: v => v + "%" })),
+        ctl({ label: "Kadr zdjęcia: pionowo", desc: "Przesuwa widoczny fragment zdjęcia w górę lub w dół.", targets: [".portrait-frame"] }, P("hero.focusY"), rangeW({ min: 0, max: 100, step: 1, format: v => v + "%" }))),
+      group("Funkcje", false,
+        ctl({ label: "Kafelkowy układ ofert", desc: "Pierwsza karta jest duża i ciemna. Po wyłączeniu wszystkie trzy są równe.", targets: [".cards"], inline: true }, P("features.bento"), toggleW()),
+        ctl({ label: "Przyklejony przycisk (telefon)", desc: "Przycisk rezerwacji przy dolnej krawędzi ekranu na telefonie.", targets: [".sticky-cta"], note: "widoczny tylko na telefonie: przełącz podgląd na „Telefon”", inline: true }, P("features.stickyCta"), toggleW()),
+        ctl({ label: "Animacje przy przewijaniu", desc: "Sekcje delikatnie wjeżdżają, a podkreślenie nagłówka się rysuje.", targets: [".hero h1 em", ".offer", ".price-card"], inline: true }, P("features.animations"), toggleW())));
+  }
+
+  // ---- Content tab ----------------------------------------------------------------------
+  function photoW(acc) {
+    const thumb = el("img", { class: "photo-thumb", alt: "" });
+    const file = el("input", { type: "file", accept: "image/*", hidden: true });
+    const path = el("input", { type: "text", placeholder: "…albo nazwa pliku, np. ja.jpg", spellcheck: "false", "aria-label": "Nazwa pliku ze zdjęciem" });
+    const sync = () => { const v = acc.get(); thumb.src = v || defaultPhoto || ""; path.value = v.startsWith("data:") ? "" : v; };
+    const upload = el("button", { type: "button", class: "btn small", onclick: () => file.click() }, "Wgraj…");
+    file.addEventListener("change", async () => {
+      if (!file.files[0]) return;
+      try {
+        acc.set(await downscale(file.files[0]));
+        commit();
+        sync();
+        path.dispatchEvent(new Event("change", { bubbles: true }));
+        toast(`Zdjęcie wgrane (${Math.round(acc.get().length * 0.75 / 1024)} KB) i osadzone w site-config.js. Duże zdjęcia lepiej wrzucić do folderu projektu i wpisać nazwę pliku.`);
+      } catch (error) { toast(error.message); }
+      file.value = "";
+    });
+    path.addEventListener("input", () => acc.set(path.value.trim()));
+    path.addEventListener("change", () => { commit(); sync(); });
+    return { node: el("div", { style: "display:flex;flex-direction:column;gap:6px;width:100%" }, el("div", { class: "w-row" }, thumb, upload, file), path), sync };
+  }
+  function downscale(file, maxSide = 1200) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const canvas = el("canvas", { width: Math.round(img.width * scale), height: Math.round(img.height * scale) });
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Nie udało się wczytać zdjęcia")); };
+      img.src = url;
+    });
+  }
+  const toolsW = acc => {
+    const buttons = Object.entries(toolRegistry).map(([id, tool]) => {
+      const icon = svgIcon(tool.path);
+      icon.style.background = tool.bg;
+      icon.style.color = tool.fg;
+      const button = el("button", { type: "button", class: "tool", "data-id": id, "aria-pressed": "false" }, icon, el("span", {}, tool.label), el("span", { class: "tick" }, "✓"));
+      button.addEventListener("click", () => {
+        const set_ = new Set(acc.get());
+        set_.has(id) ? set_.delete(id) : set_.add(id);
+        acc.set(Object.keys(toolRegistry).filter(k => set_.has(k)));
+        commit();
+        sync();
+        node.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+      return button;
+    });
+    const node = el("div", { class: "tools" }, buttons);
+    const sync = () => buttons.forEach(b => b.setAttribute("aria-pressed", String(acc.get().includes(b.dataset.id))));
+    return { node, sync };
+  };
+  const opinionsW = acc => {
+    const node = el("div", { class: "opinions" });
+    const sync = () => {
+      node.replaceChildren();
+      const list = acc.get();
+      list.forEach((item, index) => {
+        const field = (key, placeholder, max, tag = "input") => {
+          const input = el(tag, { placeholder, maxlength: max, "aria-label": placeholder, ...(tag === "input" ? { type: "text" } : {}) });
+          input.value = item[key];
+          input.addEventListener("input", () => { state.testimonials[index][key] = input.value; pushToPreview(); });
+          input.addEventListener("change", () => { commit(); refreshChanges(); });
+          return input;
+        };
+        node.append(el("div", { class: "opinion-card" },
+          field("text", "Treść opinii", 400, "textarea"),
+          el("div", { class: "row2" }, field("author", "Imię (np. Anna K.)", 60), field("role", "Kim jest (np. mama ucznia)", 80)),
+          el("div", { class: "tools-row" },
+            el("button", { type: "button", class: "icon-btn", title: "W górę", disabled: index === 0, onclick: () => mutate(s => s.testimonials.splice(index - 1, 0, s.testimonials.splice(index, 1)[0])) }, "▲"),
+            el("button", { type: "button", class: "icon-btn", title: "W dół", disabled: index === list.length - 1, onclick: () => mutate(s => s.testimonials.splice(index + 1, 0, s.testimonials.splice(index, 1)[0])) }, "▼"),
+            el("button", { type: "button", class: "icon-btn", title: "Usuń opinię", onclick: () => mutate(s => s.testimonials.splice(index, 1)) }, "✕"))));
+      });
+      node.append(el("button", { type: "button", class: "btn", disabled: list.length >= 6, onclick: () => mutate(s => s.testimonials.push({ text: "", author: "", role: "" })) }, "＋ Dodaj opinię"));
+      if (!list.length) node.append(el("p", { class: "hint" }, "Sekcja „Opinie” pojawi się na stronie, gdy dodasz pierwszą opinię (z niepustą treścią)."));
+    };
+    return { node, sync };
+  };
+  let contentBuilt = false;
+  function buildContentPane() {
+    if (contentBuilt) return;
+    contentBuilt = true;
+    const pane = $("#pane-content");
+    const P = pathAccessor;
+    const email = v => /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(v);
+    const url = v => { try { return new URL(v).protocol === "https:"; } catch { return false; } };
+    const calendar = v => { try { const u = new URL(v); return u.protocol === "https:" && u.hostname === "calendar.google.com" && u.pathname.startsWith("/calendar/appointments/schedules/"); } catch { return false; } };
+    const phone = v => /^\+?[0-9 ()\-.]{6,24}$/.test(v);
+    pane.append(el("div", { class: "intro" }, "Dane kontaktowe, logo narzędzi, opinie i zdjęcie. Pola z błędnym formatem są zaznaczone na czerwono i strona ich nie użyje."),
+      group("Marka i zdjęcie", true,
+        ctl({ label: "Nazwa marki", desc: "Napis obok gwiazdki w menu i w stopce (puste = „brightside”).", targets: [".brand"] }, P("brand"), textW({ placeholder: "brightside", maxlength: 40 })),
+        ctl({ label: "Zdjęcie korepetytora", desc: "Zdjęcie w górnej części strony.", targets: [".portrait-frame"] }, P("photo"), photoW)),
+      group("Dokąd prowadzą przyciski", true,
+        ctl({ label: "Główne przyciski „Umów lekcję”", desc: "Auto: w wersji polskiej do kontaktu, w angielskiej do rezerwacji. Dotyczy przycisku w menu, w górnej części, pod cennikiem i przyklejonego.", targets: ["[data-cta]"] }, P("cta.target"), segW([["auto", "Auto"], ["booking", "Rezerwacja"], ["contact", "Kontakt"]]))),
+      group("Kontakt", true,
+        ctl({ label: "Numer telefonu", desc: "Format międzynarodowy, np. +48 123 456 789.", targets: [".phone-card", "#show-phone"] }, P("contact.phone"), textW({ placeholder: "+48 123 456 789", maxlength: 24, validate: phone })),
+        ctl({ label: "Pokaż numer od razu", desc: "Bez klikania „Pokaż numer”. Na telefonie od razu można zadzwonić.", targets: ["#show-phone", "#phone-number"], inline: true }, P("contact.revealPhone"), toggleW()),
+        ctl({ label: "Adres e-mail", desc: "Gdy jest wpisany, w kontakcie pojawia się przycisk „Napisz e-mail”.", targets: ["#contact-email", ".phone-card"], note: "przycisk pojawi się po wpisaniu adresu" }, P("contact.email"), textW({ placeholder: "ja@example.com", maxlength: 80, validate: email })),
+        ctl({ label: "Profil LinkedIn", desc: "Adres przycisku LinkedIn w górnej części (puste = obecny).", targets: [".linkedin-link"] }, P("contact.linkedin"), textW({ placeholder: "https://www.linkedin.com/in/…", maxlength: 300, validate: url })),
+        ctl({ label: "Link do kalendarza Google", desc: "Adres „Strona rezerwacji” z Kalendarza Google (puste = obecny).", targets: ["#booking .booking-panel"] }, P("contact.calendarUrl"), textW({ placeholder: "https://calendar.google.com/calendar/appointments/schedules/…", maxlength: 600, validate: calendar }))),
+      group("Narzędzia do lekcji online", true,
+        ctl({ label: "Logo w karcie „Online”", desc: "Pokazane jako chipy z prawdziwymi logo w cenniku.", targets: ["#tool-chips"] }, P("tools"), toolsW)),
+      group("Opinie", true,
+        ctl({ label: "Opinie uczniów i rodziców", desc: "Do 6 opinii. Pojawiają się w osobnej sekcji, a link „Opinie” w menu prowadzi do niej.", targets: ["#opinions"], note: "sekcja pojawi się po dodaniu opinii" }, P("testimonials"), opinionsW)));
+  }
+  // Structural edits can change list-like controls (opinions, tools), so re-sync the static ones.
+  const renderContentLists = () => syncers.forEach(sync => sync());
+
+  // ---- Section tab -----------------------------------------------------------------------
+  function renderSectionPane() {
+    const pane = $("#pane-section");
+    sectionSyncers.length = 0;
+    pane.replaceChildren();
+    const key = selectedSection;
+    if (!key) {
+      pane.append(el("p", { class: "empty" }, "Kliknij sekcję na liście po lewej albo puste tło sekcji w podglądzie, aby zmienić jej tło, odstępy i widoczność elementów."));
+      return;
+    }
+    const isSection = key in (defaults?.sectionStyle || {});
+    const selectors = isSection ? [sectionSelectors[key]] : key === "header" ? [".topbar"] : [".footer"];
+    pane.append(el("div", { class: "intro" }, el("b", {}, SECTION_NAMES[key]), isSection ? " — tło, odstępy i widoczność." : " — widoczność elementów."));
+    if (isSection) {
+      const hiddenAcc = {
+        get: () => state.sections.hidden.includes(key),
+        set: v => { const s = new Set(state.sections.hidden); v ? s.add(key) : s.delete(key); state.sections.hidden = [...s]; pushToPreview(); },
+        reset() { this.set(false); },
+        changed: () => state.sections.hidden.includes(key)
+      };
+      const body = el("div", { class: "body" },
+        ctl({ label: "Ukryj całą sekcję", desc: "Znika też link do niej w menu i stopce.", targets: selectors, inline: true }, hiddenAcc, toggleW(), { bucket: sectionSyncers }),
+        ctl({ label: "Kolor tła sekcji", desc: "Pełnej szerokości pas za sekcją. Puste = tło strony.", targets: selectors }, pathAccessor(`sectionStyle.${key}.bg`), colorW(true), { bucket: sectionSyncers }),
+        ctl({ label: "Dodatkowy odstęp nad i pod", desc: "Dodaje puste miejsce wokół sekcji.", targets: selectors }, pathAccessor(`sectionStyle.${key}.gap`), rangeW({ min: 0, max: 160, step: 4, format: v => v + " px" }), { bucket: sectionSyncers }));
+      pane.append(el("details", { class: "group", open: true }, el("summary", {}, "Wygląd"), body));
+    }
+    const ids = Object.entries(items).filter(([, item]) => item.section === key);
+    if (ids.length) {
+      pane.append(el("details", { class: "group", open: true }, el("summary", {}, "Elementy w tej sekcji"),
+        el("div", { class: "body" }, ids.map(([id, item]) => ctl({ label: item.label, targets: [item.selector], inline: true },
+          {
+            get: () => !state.hiddenItems.includes(id),
+            set: v => { const s = new Set(state.hiddenItems); v ? s.delete(id) : s.add(id); state.hiddenItems = [...s]; pushToPreview(); },
+            reset() { this.set(true); },
+            changed: () => state.hiddenItems.includes(id)
+          }, toggleW(), { bucket: sectionSyncers })))));
+    }
+  }
+
+  // ---- Layers --------------------------------------------------------------------------------
+  function moveSection(from, to, after) {
+    if (from === to || !state.sections.order.includes(from)) return;
+    mutate(s => {
+      const order = s.sections.order.filter(k => k !== from);
+      order.splice(order.indexOf(to) + (after ? 1 : 0), 0, from);
+      s.sections.order = order;
+    });
+  }
+  function selectSection(key, fromPreview) {
+    selectedSection = key;
+    renderLayers();
+    renderSectionPane();
+    showTab("section");
+    if (!fromPreview) { sendSelect("section", key); }
+  }
+  function itemRows(key) {
+    return Object.entries(items).filter(([, item]) => item.section === key).map(([id, item]) => {
+      const hidden = state.hiddenItems.includes(id);
+      const eye = el("button", { type: "button", class: "icon-btn", title: hidden ? "Pokaż" : "Ukryj", "aria-label": `${hidden ? "Pokaż" : "Ukryj"}: ${item.label}` }, hidden ? "◌" : "●");
+      eye.addEventListener("click", e => { e.stopPropagation(); mutate(s => { const set_ = new Set(s.hiddenItems); set_.has(id) ? set_.delete(id) : set_.add(id); s.hiddenItems = [...set_]; }); });
+      const row = el("div", { class: `layer item${hidden ? " hidden-layer" : ""}` }, el("span", { class: "name" }, item.label), eye);
+      row.addEventListener("pointerenter", () => flash([item.selector], item.label));
+      row.addEventListener("pointerleave", unflashSoon);
+      row.addEventListener("click", () => sendSelect("item", id));
+      return row;
+    });
+  }
+  function layerRow(key, { fixed = false, index = 0, total = 0 } = {}) {
+    const hasItems = Object.values(items).some(item => item.section === key);
+    const hidden = !fixed && state.sections.hidden.includes(key);
+    const isEmptyOpinions = key === "opinions" && !state.testimonials.length;
+    const caret = el("button", { type: "button", class: `icon-btn caret${expanded.has(key) ? " open" : ""}`, title: "Rozwiń elementy", "aria-label": `Rozwiń elementy: ${SECTION_NAMES[key]}`, "aria-expanded": String(expanded.has(key)), disabled: !hasItems }, "▸");
+    caret.addEventListener("click", e => { e.stopPropagation(); expanded.has(key) ? expanded.delete(key) : expanded.add(key); renderLayers(); });
+    const row = el("div", { class: `layer${selectedSection === key ? " selected" : ""}${hidden ? " hidden-layer" : ""}`, draggable: !fixed, "data-key": key },
+      fixed ? el("span", { class: "grip" }) : el("span", { class: "grip", title: "Przeciągnij" }, "⋮⋮"),
+      caret, el("span", { class: "name" }, SECTION_NAMES[key]), isEmptyOpinions ? el("span", { class: "empty-tag" }, "pusta") : null);
+    if (!fixed) {
+      const order = state.sections.order;
+      const up = el("button", { type: "button", class: "icon-btn", title: "W górę", "aria-label": `${SECTION_NAMES[key]}: w górę`, disabled: index === 0 }, "▲");
+      const down = el("button", { type: "button", class: "icon-btn", title: "W dół", "aria-label": `${SECTION_NAMES[key]}: w dół`, disabled: index === total - 1 }, "▼");
+      const eye = el("button", { type: "button", class: "icon-btn", title: hidden ? "Pokaż sekcję" : "Ukryj sekcję", "aria-label": `${hidden ? "Pokaż" : "Ukryj"} sekcję: ${SECTION_NAMES[key]}` }, hidden ? "◌" : "●");
+      up.addEventListener("click", e => { e.stopPropagation(); moveSection(key, order[index - 1], false); });
+      down.addEventListener("click", e => { e.stopPropagation(); moveSection(key, order[index + 1], true); });
+      eye.addEventListener("click", e => { e.stopPropagation(); mutate(s => { const set_ = new Set(s.sections.hidden); set_.has(key) ? set_.delete(key) : set_.add(key); s.sections.hidden = [...set_]; }); });
+      row.append(up, down, eye);
+      row.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", key); e.dataTransfer.effectAllowed = "move"; row.classList.add("dragging"); });
+      row.addEventListener("dragover", e => {
+        e.preventDefault();
+        const box = row.getBoundingClientRect();
+        const after = e.clientY >= box.top + box.height / 2;
+        row.classList.toggle("drop-before", !after);
+        row.classList.toggle("drop-after", after);
+      });
+      row.addEventListener("dragleave", () => row.classList.remove("drop-before", "drop-after"));
+      row.addEventListener("drop", e => {
+        e.preventDefault();
+        const box = row.getBoundingClientRect();
+        moveSection(e.dataTransfer.getData("text/plain"), key, e.clientY >= box.top + box.height / 2);
+      });
+      row.addEventListener("dragend", renderLayers);
+    }
+    const selectors = fixed ? [key === "header" ? ".topbar" : ".footer"] : [sectionSelectors[key]];
+    row.addEventListener("pointerenter", () => flash(selectors, SECTION_NAMES[key]));
+    row.addEventListener("pointerleave", unflashSoon);
+    row.addEventListener("click", () => selectSection(key));
+    return [row, ...(expanded.has(key) ? itemRows(key) : [])];
+  }
+  function renderLayers() {
+    if (!state) return;
+    const list = $("#layerList");
+    list.replaceChildren(...layerRow("header", { fixed: true }));
+    const order = state.sections.order;
+    order.forEach((key, index) => list.append(...layerRow(key, { index, total: order.length })));
+    list.append(...layerRow("footer", { fixed: true }));
+  }
+
+  // ---- Text tab ----------------------------------------------------------------------------------
+  const currentText = (lang, key) => state.text[lang]?.[key] ?? defaultTranslations[lang]?.[key] ?? "";
+  function setText(lang, key, value) {
+    state.text[lang] ??= {};
+    if (value === defaultTranslations[lang]?.[key]) delete state.text[lang][key];
+    else state.text[lang][key] = value;
+    pushToPreview();
+  }
+  const textStyleOf = key => state.textStyle[key] ?? { scale: 1, weight: 0, color: "" };
+  function setTextStyle(key, patch) {
+    const style = { ...textStyleOf(key), ...patch };
+    if (style.scale === 1 && !style.weight && !style.color) delete state.textStyle[key];
+    else state.textStyle[key] = style;
+    pushToPreview();
+  }
+  function textStyleAccessors(key) {
+    const make = (prop, empty) => ({
+      get: () => textStyleOf(key)[prop],
+      set: v => setTextStyle(key, { [prop]: v }),
+      reset() { this.set(empty); },
+      changed: () => textStyleOf(key)[prop] !== empty
+    });
+    return { scale: make("scale", 1), weight: make("weight", 0), color: make("color", "") };
+  }
+  function renderTextEditor() {
+    const host = $("#textEditor");
+    if (!host) return;
+    textSyncers.length = 0;
+    host.replaceChildren();
+    if (!selectedKey) {
+      host.append(el("p", { class: "empty" }, "Kliknij dowolny napis w podglądzie albo wybierz go z listy poniżej."));
+      return;
+    }
+    const key = selectedKey;
+    const target = [`[data-i18n="${key}"]`];
+    const card = el("div", { class: "text-card" }, el("div", {}, "Edytujesz: ", el("code", {}, key)));
+    for (const lang of ["pl", "en"]) {
+      const area = el("textarea", { "aria-label": `${key} (${lang.toUpperCase()})`, spellcheck: "false" });
+      area.value = currentText(lang, key);
+      const reset = el("button", { type: "button", class: "mini", title: "Przywróć oryginalny tekst" }, "↺ oryginał");
+      area.addEventListener("input", () => { setText(lang, key, area.value); renderKeyList(); });
+      area.addEventListener("change", commit);
+      area.addEventListener("focus", () => flash(target, `Tekst: ${key}`));
+      area.addEventListener("blur", unflashSoon);
+      reset.addEventListener("click", () => { setText(lang, key, defaultTranslations[lang][key]); area.value = currentText(lang, key); commit(); renderKeyList(); });
+      card.append(el("label", { class: "cap" }, lang === "pl" ? "Polski" : "English", reset), area);
+    }
+    card.append(el("p", { class: "hint" }, "Dozwolone znaczniki: <br> (nowy wiersz), <em>…</em> (wyróżnione słowo), <strong>…</strong>."));
+    host.append(card);
+    const acc = textStyleAccessors(key);
+    const body = el("div", { class: "body" },
+      ctl({ label: "Rozmiar tekstu", desc: "Powiększa lub pomniejsza ten jeden napis.", targets: target }, acc.scale, rangeW({ min: 0.6, max: 2, step: 0.05, format: v => Math.round(v * 100) + "%" }), { bucket: textSyncers }),
+      ctl({ label: "Grubość", desc: "0 = domyślna dla tego napisu.", targets: target }, acc.weight, selectW([[0, "Domyślna"], [400, "Zwykła (400)"], [500, "Średnia (500)"], [600, "Półgruba (600)"], [700, "Gruba (700)"], [800, "Bardzo gruba (800)"]]), { bucket: textSyncers }),
+      ctl({ label: "Kolor tekstu", desc: "Tylko ten napis. Puste = kolor domyślny.", targets: target }, acc.color, colorW(true), { bucket: textSyncers }));
+    host.append(el("details", { class: "group", open: true }, el("summary", {}, "Wygląd tego napisu"), body));
+  }
+  function renderKeyList() {
+    const host = $("#keyList");
+    if (!host || !state) return;
+    const query = ($("#keySearch")?.value || "").trim().toLowerCase();
+    host.replaceChildren();
+    const keys = usedKeys.filter(key => !query || key.toLowerCase().includes(query)
+      || currentText("en", key).toLowerCase().includes(query) || currentText("pl", key).toLowerCase().includes(query));
+    keys.slice(0, 200).forEach(key => {
+      const changed = state.text.en?.[key] !== undefined || state.text.pl?.[key] !== undefined || state.textStyle[key];
+      const item = el("button", { type: "button", class: `key-row${key === selectedKey ? " selected" : ""}` },
+        el("span", { class: "k" }, key, changed ? el("i", {}, "● zmieniony") : null),
+        el("span", { class: "v" }, currentText(previewLang, key).replace(/<[^>]*>/g, " ")));
+      item.addEventListener("click", () => selectText(key, false));
+      host.append(item);
+    });
+    if (!keys.length) host.append(el("p", { class: "empty" }, "Nic nie pasuje."));
+  }
+  function buildTextPane() {
+    $("#pane-text").append(el("div", { id: "textEditor" }),
+      el("input", { class: "search", id: "keySearch", type: "search", placeholder: "Szukaj wśród wszystkich tekstów…", "aria-label": "Szukaj tekstów", oninput: renderKeyList }),
+      el("div", { id: "keyList" }));
+  }
+  function selectText(key, fromPreview) {
+    selectedKey = key;
+    showTab("text");
+    renderTextEditor();
+    renderKeyList();
+    if (!fromPreview) sendSelect("text", key);
+    $("#pane-text").scrollTop = 0;
+  }
+
+  // ---- Changes tab -------------------------------------------------------------------------------
+  function describe(value) {
+    if (typeof value === "boolean") return value ? "włączone" : "wyłączone";
+    if (Array.isArray(value)) return value.length ? `${value.length} poz.` : "brak";
+    return value === "" ? "puste" : String(value);
+  }
+  function computeChanges() {
+    const out = [];
+    const add = (group, label, detail, undoFn, targets, swatch) => out.push({ group, label, detail, undoFn, targets, swatch });
+    for (const { def, acc } of controlDefs) {
+      if (!acc.changed()) continue;
+      const value = acc.get();
+      add(def.group || "Ustawienia", def.label, describe(value), () => acc.reset(), def.targets, /^#[0-9a-f]{6}$/i.test(value) ? value : null);
+    }
+    if (!same(state.sections.order, defaults.sections.order)) add("Struktura", "Kolejność sekcji", state.sections.order.map(k => SECTION_NAMES[k]).join(" → "), () => { state.sections.order = clone(defaults.sections.order); }, null);
+    for (const key of state.sections.hidden) add("Struktura", `Ukryta sekcja: ${SECTION_NAMES[key]}`, "", () => { state.sections.hidden = state.sections.hidden.filter(k => k !== key); }, [sectionSelectors[key]]);
+    for (const id of state.hiddenItems) add("Struktura", `Ukryty element: ${items[id]?.label || id}`, "", () => { state.hiddenItems = state.hiddenItems.filter(k => k !== id); }, items[id] ? [items[id].selector] : null);
+    for (const [key, style] of Object.entries(state.sectionStyle)) {
+      if (style.bg) add("Sekcje", `Tło sekcji: ${SECTION_NAMES[key]}`, style.bg, () => { state.sectionStyle[key].bg = ""; }, [sectionSelectors[key]], style.bg);
+      if (style.gap) add("Sekcje", `Odstęp sekcji: ${SECTION_NAMES[key]}`, `${style.gap} px`, () => { state.sectionStyle[key].gap = 0; }, [sectionSelectors[key]]);
+    }
+    for (const [key, style] of Object.entries(state.textStyle)) {
+      const parts = [style.scale !== 1 ? `${Math.round(style.scale * 100)}%` : null, style.weight ? `grubość ${style.weight}` : null, style.color || null].filter(Boolean);
+      add("Teksty", `Wygląd napisu: ${key}`, parts.join(", "), () => { delete state.textStyle[key]; }, [`[data-i18n="${key}"]`], style.color || null);
+    }
+    for (const lang of ["pl", "en"]) {
+      for (const key of Object.keys(state.text[lang] || {})) {
+        add("Teksty", `Tekst ${lang.toUpperCase()}: ${key}`, state.text[lang][key].replace(/<[^>]*>/g, " ").slice(0, 80), () => { delete state.text[lang][key]; }, [`[data-i18n="${key}"]`]);
+      }
+    }
+    return out;
+  }
+  function refreshChanges() {
+    if (!state || !defaults) return;
+    const changes = computeChanges();
+    const badge = $("#changesBadge");
+    badge.textContent = changes.length;
+    badge.hidden = !changes.length;
+    if (!$("#pane-changes").hidden) renderChanges(changes);
+  }
+  function renderChanges(changes = computeChanges()) {
+    const pane = $("#pane-changes");
+    pane.replaceChildren();
+    if (!changes.length) {
+      pane.append(el("p", { class: "empty" }, "Nie ma zmian względem oryginalnego wyglądu. Gdy coś zmienisz, pojawi się tutaj lista z możliwością cofnięcia każdej zmiany."));
+      return;
+    }
+    pane.append(el("div", { class: "intro" }, `${changes.length} zmian względem oryginału. Kliknij wiersz, aby zobaczyć w podglądzie, czego dotyczy.`));
+    let lastGroup = "";
+    for (const change of changes) {
+      if (change.group !== lastGroup) { pane.append(el("div", { class: "change-group" }, change.group)); lastGroup = change.group; }
+      const undoBtn = el("button", { type: "button", class: "btn small", title: "Cofnij tę zmianę" }, "↺ Cofnij");
+      const what = el("div", { class: "what" }, el("b", {}, change.label),
+        el("small", {}, change.swatch ? el("span", { class: "sw", style: `background:${change.swatch}` }) : null, change.detail));
+      what.addEventListener("click", () => flash(change.targets, change.label));
+      what.addEventListener("pointerleave", unflashSoon);
+      undoBtn.addEventListener("click", () => { change.undoFn(); pushToPreview(); commit(); syncAll(); });
+      pane.append(el("div", { class: "change" }, what, undoBtn));
+    }
+  }
+
+  // ---- Tabs ---------------------------------------------------------------------------------------
+  function showTab(name) {
+    for (const tab of ["style", "section", "text", "content", "changes"]) {
+      $(`#tab-${tab}`).setAttribute("aria-selected", String(tab === name));
+      $(`#pane-${tab}`).hidden = tab !== name;
+    }
+    if (name === "changes") renderChanges();
+  }
+
+  // ---- Preview sizing ------------------------------------------------------------------------------
+  function fit() {
+    const width = DEVICES[device];
+    const availW = stage.clientWidth - 48;
+    const availH = stage.clientHeight - 48;
+    const scale = Math.min(1, availW / width);
+    const height = device === "phone" ? Math.min(860, availH / scale) : availH / scale;
+    iframe.style.width = width + "px";
+    iframe.style.height = height + "px";
+    iframe.style.transform = `scale(${scale})`;
+    frameWrap.style.width = width * scale + "px";
+    frameWrap.style.height = height * scale + "px";
+    frameWrap.classList.toggle("phone", device === "phone");
+    $("#zoom").textContent = Math.round(scale * 100) + "%";
+  }
+
+  // ---- Save / export --------------------------------------------------------------------------------
+  function configFileText() {
+    const out = clone(state);
+    for (const lang of ["en", "pl"]) {
+      for (const key of Object.keys(out.text[lang] || {})) if (out.text[lang][key] === defaultTranslations[lang]?.[key]) delete out.text[lang][key];
+    }
+    return "// Ustawienia strony zapisane przez editor.html. Otwórz editor.html, aby je zmienić.\n"
+      + "window.BRIGHTSIDE_SITE = " + JSON.stringify(out, null, 2) + ";\n";
+  }
+  function markSaved() {
+    dirty = false;
+    setStatus();
+    try { localStorage.removeItem(DRAFT_KEY); } catch {}
+  }
+  function download() {
+    const url = URL.createObjectURL(new Blob([configFileText()], { type: "text/javascript" }));
+    el("a", { href: url, download: "site-config.js" }).click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    markSaved();
+    toast("Pobrano site-config.js. Zastąp nim plik obok index.html, a potem zrób commit w gitcie.");
+  }
+  async function save() {
+    if (!("showSaveFilePicker" in window)) return download();
+    try {
+      if (!fileHandle) {
+        fileHandle = await window.showSaveFilePicker({ suggestedName: "site-config.js", types: [{ description: "JavaScript", accept: { "text/javascript": [".js"] } }] });
+      }
+      const writable = await fileHandle.createWritable();
+      await writable.write(configFileText());
+      await writable.close();
+      markSaved();
+      toast(fileHandle.name === "site-config.js"
+        ? "Zapisano site-config.js. To zwykły plik projektu, więc zmiany zobaczysz w gicie (git diff) i zapiszesz commitem."
+        : `Zapisano jako ${fileHandle.name}. Plik musi nazywać się site-config.js i leżeć obok index.html.`);
+    } catch (error) {
+      if (error.name === "AbortError") return;
+      fileHandle = null;
+      console.warn(error);
+      download();
+    }
+  }
+
+  let toastTimer;
+  function toast(message, actions = []) {
+    const box = $("#toast");
+    box.replaceChildren(message, ...actions.map(([label, handler]) => el("button", { type: "button", class: "btn", onclick: () => { handler(); box.classList.remove("show"); } }, label)));
+    box.classList.add("show");
+    clearTimeout(toastTimer);
+    if (!actions.length) toastTimer = setTimeout(() => box.classList.remove("show"), 8000);
+  }
+
+  // ---- Wiring ------------------------------------------------------------------------------------------
+  function onReady(data) {
+    defaults = data.defaults;
+    fontList = data.fonts;
+    usedKeys = data.usedKeys;
+    defaultTranslations = data.defaultTranslations;
+    defaultPhoto = data.defaultPhoto;
+    items = data.items;
+    toolRegistry = data.tools;
+    sectionSelectors = data.sectionSelectors;
+    $("#loading").hidden = true;
+    if (built) { pushToPreview(); send({ type: "lang", lang: previewLang }); return; }
+    state = clone(data.config);
+    lastCommitted = JSON.stringify(state);
+    buildStylePane();
+    buildContentPane();
+    buildTextPane();
+    built = true;
+    syncAll();
+    setStatus();
+    fit();
+    send({ type: "lang", lang: previewLang });
+    try {
+      const draft = localStorage.getItem(DRAFT_KEY);
+      if (draft && draft !== lastCommitted) {
+        toast("Znaleziono niezapisany szkic z poprzedniej sesji.", [
+          ["Przywróć", () => { undoStack.push(lastCommitted); restore(draft); }],
+          ["Odrzuć", () => localStorage.removeItem(DRAFT_KEY)]
+        ]);
+      }
+    } catch {}
+  }
+
+  window.addEventListener("message", event => {
+    if (event.source !== iframe.contentWindow || !event.data || typeof event.data !== "object") return;
+    const data = event.data;
+    if (data.type === "ready") onReady(data);
+    else if (data.type === "select" && built) {
+      if (data.kind === "text") selectText(data.key, true);
+      else if (data.kind === "section") selectSection(data.key, true);
+    }
+  });
+
+  iframe.addEventListener("load", () => send({ type: "hello" }));
+  $("#deviceSeg").addEventListener("click", event => {
+    const button = event.target.closest("[data-device]");
+    if (!button) return;
+    device = button.dataset.device;
+    $("#deviceSeg").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === button)));
+    fit();
+  });
+  $("#langSeg").addEventListener("click", event => {
+    const button = event.target.closest("[data-lang]");
+    if (!button) return;
+    previewLang = button.dataset.lang;
+    $("#langSeg").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === button)));
+    send({ type: "lang", lang: previewLang });
+    if (built) renderKeyList();
+  });
+  const hlToggle = $("#hlToggle");
+  hlToggle.checked = highlightOn;
+  hlToggle.addEventListener("change", () => {
+    highlightOn = hlToggle.checked;
+    try { localStorage.setItem(HL_KEY, highlightOn ? "1" : "0"); } catch {}
+    if (!highlightOn) send({ type: "unflash" });
+  });
+  for (const tab of ["style", "section", "text", "content", "changes"]) $(`#tab-${tab}`).addEventListener("click", () => showTab(tab));
+  $("#undo").addEventListener("click", undo);
+  $("#redo").addEventListener("click", redo);
+  $("#save").addEventListener("click", save);
+  $("#download").addEventListener("click", () => built && download());
+  $("#reset").addEventListener("click", () => {
+    if (!built || !confirm("Przywrócić oryginalny wygląd i oryginalne teksty? Możesz to jeszcze cofnąć przyciskiem „Cofnij”.")) return;
+    state = clone(defaults);
+    state.text = { en: {}, pl: {} };
+    pushToPreview();
+    commit();
+    syncAll();
+  });
+  const compare = $("#compare");
+  const showOriginal = on => { if (built) pushToPreview(on ? { text: { en: {}, pl: {} } } : state); };
+  compare.addEventListener("pointerdown", () => showOriginal(true));
+  for (const type of ["pointerup", "pointerleave", "pointercancel"]) compare.addEventListener(type, () => showOriginal(false));
+
+  document.addEventListener("keydown", event => {
+    const mod = event.ctrlKey || event.metaKey;
+    if (!mod) return;
+    const typing = event.target.matches?.("input,textarea,select");
+    const key = event.key.toLowerCase();
+    if (key === "s") { event.preventDefault(); if (built) save(); }
+    else if (!typing && key === "z") { event.preventDefault(); event.shiftKey ? redo() : undo(); }
+    else if (!typing && key === "y") { event.preventDefault(); redo(); }
+  });
+  window.addEventListener("beforeunload", event => { if (dirty) { event.preventDefault(); event.returnValue = ""; } });
+  new ResizeObserver(fit).observe(stage);
+  fit();
+  setTimeout(() => { if (!built) $("#loading").textContent = "Podgląd nie odpowiada. Otwórz ten plik w Chrome lub Edge, w tym samym folderze co index.html."; }, 6000);
+})();
+</script>
+</body>
+</html>
