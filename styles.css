@@ -160,24 +160,24 @@ html[lang] .hero h1{letter-spacing:-.03em}
 @media(max-width:600px){.hero-actions{flex-direction:column;align-items:stretch}.hero-actions .button{width:100%}}
 
 /* --- Offers: bento layout --------------------------------------------------- */
-.cards{grid-template-columns:1.25fr 1fr;grid-auto-rows:auto;align-items:stretch}
-.offer:first-child{grid-row:span 2;background:var(--deep);border-color:var(--deep);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
-.offer:first-child:before{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;background:#2f4c3d}
-.offer:first-child>*{position:relative}
-.offer:first-child .offer-icon{background:var(--green);color:var(--deep);width:52px;height:52px;border-radius:16px;margin-bottom:auto;align-self:flex-start}
-.offer:first-child .offer-icon .ico{width:26px;height:26px}
-.offer:first-child h3{font-size:clamp(26px,3vw,36px);line-height:1.1;letter-spacing:-.02em;color:#fff;margin:48px 0 12px}
-.offer:first-child p{color:#d3ddd6;max-width:380px}
-.offer:first-child .small-link{color:var(--green)}
+.cards:not(.is-flat){grid-template-columns:1.25fr 1fr;grid-auto-rows:auto;align-items:stretch}
+.cards:not(.is-flat) .offer:first-child{grid-row:span 2;background:var(--deep);border-color:var(--deep);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+.cards:not(.is-flat) .offer:first-child:before{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;background:#2f4c3d;background:color-mix(in srgb,var(--deep),#fff 11%)}
+.cards:not(.is-flat) .offer:first-child>*{position:relative}
+.cards:not(.is-flat) .offer:first-child .offer-icon{background:var(--green);color:var(--deep);width:52px;height:52px;border-radius:16px;margin-bottom:auto;align-self:flex-start}
+.cards:not(.is-flat) .offer:first-child .offer-icon .ico{width:26px;height:26px}
+.cards:not(.is-flat) .offer:first-child h3{font-size:clamp(26px,3vw,36px);line-height:1.1;letter-spacing:-.02em;color:#fff;margin:48px 0 12px}
+.cards:not(.is-flat) .offer:first-child p{color:#d3ddd6;max-width:380px}
+.cards:not(.is-flat) .offer:first-child .small-link{color:var(--green)}
 .offer-icon .ico{width:21px;height:21px}
 .offer-icon{color:var(--deep)}
 .small-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;margin-top:8px}
 .small-link .ico{transition:transform .18s}
 @media(hover:hover){.small-link:hover .ico{transform:translateX(4px)}}
 @media(max-width:800px){
-  .cards{grid-template-columns:1fr}
-  .offer:first-child{grid-row:auto}
-  .offer:first-child h3{margin-top:28px}
+  .cards,.cards:not(.is-flat){grid-template-columns:1fr}
+  .cards:not(.is-flat) .offer:first-child{grid-row:auto}
+  .cards:not(.is-flat) .offer:first-child h3{margin-top:28px}
 }
 
 /* --- Pricing: two cards instead of a table ---------------------------------- */
@@ -239,3 +239,16 @@ html[lang] .hero h1{letter-spacing:-.03em}
   .sticky-cta{transition:none}
 }
 @media(max-width:600px){.portrait-note{bottom:auto;top:56px;right:0;font-size:12px}}
+
+/* --- Phones: link out to the full Google booking page instead of embedding it --- */
+@media(max-width:800px){
+  .calendar-frame{display:none!important}
+  .has-calendar .booking-message{text-align:center}
+  .has-calendar .booking-icon{margin:0 auto 15px}
+  .has-calendar .calendar-open{width:100%;background:var(--green);box-shadow:3px 3px 0 var(--deep)}
+}
+
+/* --- Hooks used by site-customize.js / editor.html ------------------------------ */
+.site-hidden{display:none!important}
+html.no-anim .reveal{opacity:1!important;transform:none!important}
+html.no-anim .hero h1 em:after{animation:none!important}

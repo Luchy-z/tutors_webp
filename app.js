@@ -14,7 +14,7 @@ const translations = {
     cardPhysicsTitle: "Physics that clicks", cardPhysicsText: "Mechanics, electricity, waves and all the ideas hiding behind those important equations.", cardPhysicsCta: "Make sense of it",
     cardExamTitle: "Confidence for exams", cardExamText: "Smart revision plans, exam technique and calm, steady practice when it matters most.", cardExamCta: "Feel prepared",
     pricingEyebrow: "Clear, simple pricing", pricingTitle: "Choose how<br>you’d like to learn.", pricingDesc: "One-to-one maths and physics lessons, online or in person. Each lesson lasts 60 minutes.", pricingCaption: "Compare online and in-person lesson prices", pricingType: "Lesson type", pricingOnline: "Online", pricingOffline: "In person", pricingDuration: "60-minute individual lesson", pricingIncludes: "Tools used", priceOnline: "Add price", priceOffline: "Add price", pricePerLesson: "per lesson", pricingOnlineDetail: "Discord and a choice of Miro or Google Meet", pricingOfflineDetail: "Face-to-face lesson. Book in-person lessons by phone call.", pricingNote: "Replace “Add price” with your rate before publishing. In-person lesson location can be agreed when booking.", pricingCta: "Check lesson times",
-    bookingEyebrow: "Check availability", bookingTitle: "Find a time<br>that works for you.", bookingDesc: "Choose a lesson time that fits your week. Available slots update through Google Calendar.", bookingCardTitle: "Choose your lesson time", calendarUnavailable: "The live booking calendar hasn’t been connected yet. Get in touch and I’ll help find a time.", calendarConnected: "Pick an available time below. Google Calendar will confirm your booking.", calendarOpen: "Open booking calendar", calendarContact: "Ask about a time", calendarTitle: "Google Calendar lesson availability",
+    bookingEyebrow: "Check availability", bookingTitle: "Find a time<br>that works for you.", bookingDesc: "Choose a lesson time that fits your week. Available slots update through Google Calendar.", bookingCardTitle: "Choose your lesson time", calendarUnavailable: "The live booking calendar hasn’t been connected yet. Get in touch and I’ll help find a time.", calendarConnected: "Pick an available time below. Google Calendar will confirm your booking.", calendarConnectedMobile: "Tap the button to pick a time in Google Calendar. It opens in a new tab.", calendarOpen: "Open booking calendar", calendarContact: "Ask about a time", calendarTitle: "Google Calendar lesson availability",
     quote: "My goal is simple: help you understand the why, so you can tackle the next problem with confidence.", quoteBy: "A little about how I teach", ratingText: "lessons shaped around you",
     contactEyebrow: "A quick question?", contactTitle: "Let’s talk<br>about your goals.", contactText: "Prefer to speak directly? Reveal the tutor’s phone number and call or text about lessons.", phoneTitle: "Call or text the tutor", phonePrompt: "The number stays hidden until you choose to reveal it.", showPhone: "Show phone number", hidePhone: "Hide phone number", phoneMissing: "The tutor’s phone number has not been added yet.",
     footerTag: "Maths & physics, made clear.", footerContact: "Get in touch"
@@ -34,12 +34,14 @@ const translations = {
     cardPhysicsTitle: "Egzaminy 8-klasisty", cardPhysicsText: "Zadania, karty wzorów, materiały do nauki, skompresowana wiedza", cardPhysicsCta: "Zdasz to",
     cardExamTitle: "Co po maturze?", cardExamText: "Wstęp do analizy matematycznej na studia techniczne, wprowadzenie do metodologii doświadczalnej i sprawozdań", cardExamCta: "Przygotuj się",
     pricingEyebrow: "Jasne zasady i ceny", pricingTitle: "Wybierz sposób<br>nauki dla siebie.", pricingDesc: "Indywidualne lekcje matematyki lub fizyki online lub stacjonarnie.", pricingCaption: "Porównanie cen lekcji online i stacjonarnych", pricingType: "Rodzaj lekcji", pricingOnline: "Online", pricingOffline: "Stacjonarnie", pricingDuration: "Indywidualna lekcja 60 minut", pricingIncludes: "Uwagi", priceOnline: "90 zł", priceOffline: "110 zł", pricePerLesson: "za lekcję", pricingOnlineDetail: "Discord oraz do wyboru Miro lub Google Meet", pricingOfflineDetail: "Preferowalnie Kraków Bronowice/Łobzów/Krowodrza - możliwe indywidualne korekty. Lekcje stacjonarne rezerwuj telefonicznie.", pricingNote: "Możliwe również niestandardowe godziny ustalane indywidualnie ", pricingCta: "Sprawdź dostępne terminy",
-    bookingEyebrow: "Sprawdź dostępne terminy", bookingTitle: "Wybierz dogodny<br>termin lekcji online.", bookingDesc: "Wybierz termin lekcji, który pasuje do Twojego tygodnia. Dostępne godziny aktualizuje Kalendarz Google.", bookingCardTitle: "Wybierz termin lekcji", calendarUnavailable: "Kalendarz rezerwacji nie jest jeszcze połączony. Napisz do mnie, a wspólnie znajdziemy dogodny termin.", calendarConnected: "Wybierz wolny termin poniżej. Kalendarz Google potwierdzi rezerwację.", calendarOpen: "Otwórz kalendarz rezerwacji", calendarContact: "Zapytaj o termin", calendarTitle: "Dostępne terminy lekcji w Kalendarzu Google",
+    bookingEyebrow: "Sprawdź dostępne terminy", bookingTitle: "Wybierz dogodny<br>termin lekcji online.", bookingDesc: "Wybierz termin lekcji, który pasuje do Twojego tygodnia. Dostępne godziny aktualizuje Kalendarz Google.", bookingCardTitle: "Wybierz termin lekcji", calendarUnavailable: "Kalendarz rezerwacji nie jest jeszcze połączony. Napisz do mnie, a wspólnie znajdziemy dogodny termin.", calendarConnected: "Wybierz wolny termin poniżej. Kalendarz Google potwierdzi rezerwację.", calendarConnectedMobile: "Kliknij przycisk, aby wybrać termin w Kalendarzu Google. Otworzy się w nowej karcie.", calendarOpen: "Otwórz kalendarz rezerwacji", calendarContact: "Zapytaj o termin", calendarTitle: "Dostępne terminy lekcji w Kalendarzu Google",
     quote: "Mój cel jest prosty: dać ci pewność siebie i spryt aby zapewnić samodzielność", quoteBy: "Kilka słów o moim podejściu", ratingText: "lekcje dopasowane do Ciebie",
     contactEyebrow: "Masz pytanie?", contactTitle: "Porozmawiajmy<br>o Twoich celach.", contactText: "Wolisz porozmawiać bezpośrednio? Odsłoń numer telefonu i zadzwoń lub napisz w sprawie lekcji.", phoneTitle: "Zadzwoń lub napisz", phonePrompt: "Prośba o kontakt telefoniczny po godzinie 17", showPhone: "Pokaż numer telefonu", hidePhone: "Ukryj numer telefonu", phoneMissing: "Numer telefonu korepetytora nie został jeszcze dodany.",
     footerTag: "Matematyka i fizyka bez tajemnic.", footerContact: "Kontakt"
   }
 };
+
+const defaultTranslations = JSON.parse(JSON.stringify(translations));
 
 function getInitialLanguage() {
   const saved = localStorage.getItem("brightside-language");
@@ -73,14 +75,18 @@ function setLanguage(language) {
   document.querySelector(".stats").setAttribute("aria-label", chosen === "pl" ? "Najważniejsze informacje o korepetycjach" : "Tutoring highlights");
   const bookingUrl = getGoogleBookingUrl();
   const bookingMessage = document.querySelector("#calendar-message");
-  bookingMessage.textContent = bookingUrl ? copy.calendarConnected : copy.calendarUnavailable;
+  // On phones the embedded Google schedule is long and scrolls inside the page,
+  // so we send people to the full booking page instead of embedding it.
+  const mobileBooking = window.matchMedia("(max-width: 800px)").matches;
+  bookingMessage.textContent = bookingUrl ? (mobileBooking ? copy.calendarConnectedMobile : copy.calendarConnected) : copy.calendarUnavailable;
   document.querySelector("#calendar-open").hidden = !bookingUrl;
   document.querySelector("#calendar-contact").hidden = Boolean(bookingUrl);
   document.querySelector("#calendar-frame").hidden = !bookingUrl;
   document.querySelector(".booking-panel").classList.toggle("has-calendar", Boolean(bookingUrl));
   document.querySelector("#calendar-open").href = bookingUrl || "#contact";
   document.querySelector("#calendar-frame iframe").title = copy.calendarTitle;
-  if (bookingUrl) document.querySelector("#calendar-frame iframe").src = bookingUrl;
+  const calendarIframe = document.querySelector("#calendar-frame iframe");
+  if (bookingUrl && !mobileBooking && calendarIframe.getAttribute("src") !== bookingUrl) calendarIframe.src = bookingUrl;
   const phoneButtonLabel = document.querySelector("#show-phone [data-i18n]");
   if (phoneButtonLabel) phoneButtonLabel.textContent = document.querySelector("#phone-number").hidden ? copy.showPhone : copy.hidePhone;
   const phoneMissing = document.querySelector("#phone-missing");
@@ -148,7 +154,13 @@ document.querySelector("#show-phone").addEventListener("click", () => {
   button.setAttribute("aria-expanded", String(reveal));
   button.querySelector("[data-i18n]").textContent = reveal ? copy.hidePhone : copy.showPhone;
 });
+window.matchMedia("(max-width: 800px)").addEventListener("change", () => setLanguage(document.documentElement.lang));
+
+// Hook for site-customize.js (text overrides, live preview from editor.html).
+window.BrightsideSite = { translations, defaultTranslations, setLanguage };
+window.BrightsideCustomize?.attach(window.BrightsideSite);
 setLanguage(getInitialLanguage());
+window.BrightsideCustomize?.notifyReady();
 
 // Scroll reveal and sticky mobile CTA. Both are progressive enhancements:
 // without IntersectionObserver (or with reduced motion) content just shows.
@@ -161,7 +173,10 @@ if ("IntersectionObserver" in window) {
   }, { threshold: 0.15 });
   document.querySelectorAll(".hero-actions, #booking, #contact").forEach(element => stickyObserver.observe(element));
 
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  const motionAllowed = !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    && !document.documentElement.classList.contains("edit-mode")
+    && window.BRIGHTSIDE_SITE?.features?.animations !== false;
+  if (motionAllowed) {
     const revealObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;

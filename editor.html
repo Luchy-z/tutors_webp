@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Site editor — Brightside</title>
+<style>
+  :root{--bg:#1b1c1e;--panel:#252628;--panel2:#2d2f31;--line:#3a3c3f;--text:#e8e9ea;--dim:#9a9da1;--accent:#0d99ff;--accent2:#0b7fd6;--danger:#f24822}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{display:grid;grid-template-rows:48px 1fr;grid-template-columns:250px 1fr 320px;grid-template-areas:"bar bar bar" "layers stage props";background:var(--bg);color:var(--text);font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{cursor:pointer}
+  .bar{grid-area:bar;display:flex;align-items:center;gap:14px;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--line)}
+  .bar .grow{flex:1}
+  .title{font-weight:700;letter-spacing:.2px}
+  .status{color:var(--dim);font-size:12px}
+  .status.dirty{color:#ffcd29}
+  .seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:2px;gap:2px}
+  .seg button{border:0;background:transparent;padding:4px 10px;border-radius:5px;color:var(--dim)}
+  .seg button[aria-pressed="true"]{background:var(--panel2);color:var(--text)}
+  .btn{border:1px solid var(--line);background:var(--panel2);padding:5px 12px;border-radius:7px}
+  .btn:hover:not(:disabled){border-color:#55585c}
+  .btn:disabled{opacity:.4;cursor:default}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  .btn.primary:hover{background:var(--accent2)}
+  .btn.danger{color:#ff8a70}
+  aside{background:var(--panel);overflow:auto}
+  #layers{grid-area:layers;border-right:1px solid var(--line)}
+  #props{grid-area:props;border-left:1px solid var(--line);display:flex;flex-direction:column}
+  .panel-title{padding:12px 14px 8px;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim)}
+  .layer{display:flex;align-items:center;gap:6px;padding:6px 8px 6px 10px;margin:0 6px;border-radius:6px;border-top:2px solid transparent;border-bottom:2px solid transparent;cursor:pointer;user-select:none}
+  .layer:hover{background:var(--panel2)}
+  .layer.selected{background:#0d99ff33}
+  .layer.fixed{color:var(--dim);cursor:default}
+  .layer.fixed:hover{background:transparent}
+  .layer.hidden-layer .name{opacity:.4;text-decoration:line-through}
+  .layer.dragging{opacity:.4}
+  .layer.drop-before{border-top-color:var(--accent)}
+  .layer.drop-after{border-bottom-color:var(--accent)}
+  .layer .grip{color:var(--dim);cursor:grab}
+  .layer .name{flex:1}
+  .icon-btn{border:0;background:transparent;color:var(--dim);padding:2px 5px;border-radius:4px;line-height:1}
+  .icon-btn:hover:not(:disabled){background:#ffffff14;color:var(--text)}
+  .icon-btn:disabled{opacity:.25;cursor:default}
+  .tabs{display:flex;border-bottom:1px solid var(--line);flex:none}
+  .tabs button{flex:1;padding:11px 0;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--dim);font-weight:600}
+  .tabs button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent)}
+  .tabpane{overflow:auto;flex:1;padding-bottom:40px}
+  .tabpane[hidden]{display:none}
+  .group{padding:4px 14px 14px;border-bottom:1px solid var(--line)}
+  .group h3{margin:12px 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600}
+  .row{display:flex;align-items:center;gap:8px;margin:7px 0;min-height:28px}
+  .row .lbl{flex:0 0 96px;color:var(--dim)}
+  .row .grow{flex:1;min-width:0}
+  .row input[type=text],.row select,.search,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
+  .row input[type=text]:focus,.row select:focus,.search:focus,textarea:focus{outline:1px solid var(--accent);border-color:var(--accent)}
+  .row input[type=color]{width:30px;height:26px;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--bg);flex:none}
+  .row input.hex{width:84px;font-family:ui-monospace,Consolas,monospace}
+  .row input[type=range]{flex:1;accent-color:var(--accent);min-width:0}
+  .row .val{width:42px;text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
+  .mini{border:0;background:transparent;color:var(--dim);padding:2px 4px;border-radius:4px}
+  .mini:hover{color:var(--text);background:#ffffff14}
+  .switch{position:relative;width:34px;height:20px;flex:none;border-radius:20px;border:0;background:#4a4d51;padding:0}
+  .switch:after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .15s}
+  .switch[aria-checked="true"]{background:var(--accent)}
+  .switch[aria-checked="true"]:after{transform:translateX(14px)}
+  .hint{color:var(--dim);font-size:12px;margin:6px 0 0}
+  #stage{grid-area:stage;overflow:auto;display:grid;place-items:start center;padding:24px;background:#141516;background-image:radial-gradient(#2a2b2d 1px,transparent 1px);background-size:18px 18px}
+  #frameWrap{position:relative;box-shadow:0 8px 40px #0008;border-radius:4px;overflow:hidden;background:#fff}
+  #frameWrap.phone{border-radius:28px;box-shadow:0 0 0 8px #0b0b0c,0 8px 40px #000a}
+  #preview{border:0;transform-origin:top left;display:block;background:#fff}
+  .zoom{color:var(--dim);font-size:12px;min-width:38px}
+  .text-card{padding:12px 14px;border-bottom:1px solid var(--line)}
+  .text-card code{background:var(--bg);padding:1px 6px;border-radius:4px}
+  .text-card label{display:block;margin:10px 0 4px;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.8px}
+  .text-card .lab-row{display:flex;align-items:center;justify-content:space-between}
+  textarea{min-height:74px;resize:vertical;line-height:1.45}
+  .search{margin:10px 14px;width:calc(100% - 28px)}
+  .key-row{display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid #ffffff0d;padding:7px 14px}
+  .key-row:hover{background:var(--panel2)}
+  .key-row.selected{background:#0d99ff33}
+  .key-row .k{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--dim)}
+  .key-row .k i{color:#ffcd29;font-style:normal;margin-left:6px}
+  .key-row .v{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+  .empty{color:var(--dim);padding:14px}
+  .photo-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--bg);border:1px solid var(--line);flex:none}
+  #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#000;color:#fff;border:1px solid var(--line);padding:10px 14px;border-radius:10px;display:none;gap:12px;align-items:center;z-index:10;box-shadow:0 8px 30px #0009;max-width:min(560px,90vw)}
+  #toast.show{display:flex}
+  #loading{position:absolute;inset:0;display:grid;place-items:center;background:var(--bg);color:var(--dim);z-index:5}
+  #loading[hidden]{display:none}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="title">Site editor</span>
+  <span class="status" id="status">Loading…</span>
+  <span class="grow"></span>
+  <div class="seg" id="deviceSeg" role="group" aria-label="Preview size">
+    <button type="button" data-device="desktop" aria-pressed="true">Desktop</button>
+    <button type="button" data-device="tablet" aria-pressed="false">Tablet</button>
+    <button type="button" data-device="phone" aria-pressed="false">Phone</button>
+  </div>
+  <span class="zoom" id="zoom"></span>
+  <div class="seg" id="langSeg" role="group" aria-label="Preview language">
+    <button type="button" data-lang="en" aria-pressed="true">EN</button>
+    <button type="button" data-lang="pl" aria-pressed="false">PL</button>
+  </div>
+  <span class="grow"></span>
+  <button class="btn" id="compare" type="button" title="Hold to see the original design">Hold: original</button>
+  <button class="btn" id="undo" type="button" title="Undo (Ctrl+Z)" disabled>Undo</button>
+  <button class="btn" id="redo" type="button" title="Redo (Ctrl+Shift+Z)" disabled>Redo</button>
+  <button class="btn danger" id="reset" type="button">Reset</button>
+  <button class="btn" id="download" type="button" title="Download site-config.js">Download</button>
+  <button class="btn primary" id="save" type="button" title="Save to site-config.js (Ctrl+S)">Save</button>
+</header>
+
+<aside id="layers" aria-label="Page structure">
+  <div class="panel-title">Page structure</div>
+  <div id="layerList"></div>
+  <p class="hint" style="padding:0 14px">Drag sections or use the arrows to reorder. The eye hides a section (and its menu link).</p>
+</aside>
+
+<main id="stage">
+  <div id="frameWrap"><div id="loading">Loading preview…</div><iframe id="preview" title="Page preview" src="index.html?edit=1"></iframe></div>
+</main>
+
+<aside id="props">
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tab-design" aria-selected="true" aria-controls="pane-design">Design</button>
+    <button type="button" role="tab" id="tab-text" aria-selected="false" aria-controls="pane-text">Text</button>
+  </div>
+  <div class="tabpane" id="pane-design" role="tabpanel" aria-labelledby="tab-design"></div>
+  <div class="tabpane" id="pane-text" role="tabpanel" aria-labelledby="tab-text" hidden></div>
+</aside>
+
+<div id="toast" role="status"></div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const getPath = (object, path) => path.split(".").reduce((o, k) => o?.[k], object);
+  const setPath = (object, path, value) => {
+    const keys = path.split(".");
+    const last = keys.pop();
+    keys.reduce((o, k) => o[k], object)[last] = value;
+  };
+  function el(tag, attrs = {}, ...children) {
+    const node = document.createElement(tag);
+    for (const [key, value] of Object.entries(attrs)) {
+      if (key === "class") node.className = value;
+      else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+      else if (value === true) node.setAttribute(key, "");
+      else if (value !== false && value != null) node.setAttribute(key, value);
+    }
+    for (const child of children.flat()) if (child != null) node.append(child);
+    return node;
+  }
+
+  const iframe = $("#preview");
+  const stage = $("#stage");
+  const frameWrap = $("#frameWrap");
+  const DEVICES = { desktop: 1440, tablet: 820, phone: 390 };
+  const SECTION_NAMES = { hero: "Hero", stats: "Highlights", lessons: "Lessons", pricing: "Pricing", booking: "Booking", reviews: "Quote / reviews", contact: "Contact" };
+  const DRAFT_KEY = "brightside-editor-draft";
+
+  let defaults, fontList, sectionKeys, usedKeys, defaultTranslations, defaultPhoto;
+  let state, lastCommitted;
+  let built = false, dirty = false, device = "desktop", previewLang = "en", fileHandle = null;
+  let selectedKey = null, selectedSection = null;
+  const undoStack = [], redoStack = [];
+  const syncers = [];
+
+  // ---- Preview messaging ---------------------------------------------------------
+  function pushToPreview(config = state) {
+    iframe.contentWindow?.postMessage({ type: "config", config }, "*");
+  }
+  function sendSelect(kind, key) {
+    iframe.contentWindow?.postMessage({ type: "select", kind, key }, "*");
+  }
+
+  // ---- State, history, drafts -----------------------------------------------------
+  function setStatus() {
+    const status = $("#status");
+    status.textContent = dirty ? "Unsaved changes" : "All changes saved";
+    status.classList.toggle("dirty", dirty);
+  }
+  function updateHistoryButtons() {
+    $("#undo").disabled = !undoStack.length;
+    $("#redo").disabled = !redoStack.length;
+  }
+  let draftTimer;
+  function saveDraft() {
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(() => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch {} }, 400);
+  }
+  function set(path, value) {
+    setPath(state, path, value);
+    pushToPreview();
+  }
+  function commit() {
+    const now = JSON.stringify(state);
+    if (now === lastCommitted) return;
+    undoStack.push(lastCommitted);
+    if (undoStack.length > 100) undoStack.shift();
+    redoStack.length = 0;
+    lastCommitted = now;
+    dirty = true;
+    setStatus();
+    updateHistoryButtons();
+    saveDraft();
+  }
+  function restore(json) {
+    state = JSON.parse(json);
+    lastCommitted = json;
+    dirty = true;
+    setStatus();
+    syncAll();
+    pushToPreview();
+    updateHistoryButtons();
+    saveDraft();
+  }
+  function undo() { if (!undoStack.length) return; redoStack.push(lastCommitted); restore(undoStack.pop()); }
+  function redo() { if (!redoStack.length) return; undoStack.push(lastCommitted); restore(redoStack.pop()); }
+  function syncAll() {
+    syncers.forEach(sync => sync());
+    renderLayers();
+    renderTextEditor();
+    renderKeyList();
+  }
+
+  // ---- Design controls ----------------------------------------------------------------
+  function row(label, ...content) {
+    return el("div", { class: "row" }, el("span", { class: "lbl" }, label), ...content);
+  }
+  function colorControl(path, label) {
+    const picker = el("input", { type: "color", "aria-label": label });
+    const hex = el("input", { type: "text", class: "hex", maxlength: 7, spellcheck: "false", "aria-label": `${label} hex` });
+    const reset = el("button", { type: "button", class: "mini", title: "Reset to default" }, "↺");
+    const sync = () => { const v = getPath(state, path); picker.value = v; hex.value = v; };
+    picker.addEventListener("input", () => { set(path, picker.value); hex.value = picker.value; });
+    picker.addEventListener("change", commit);
+    hex.addEventListener("change", () => {
+      const v = hex.value.trim().toLowerCase();
+      if (/^#[0-9a-f]{6}$/.test(v)) { set(path, v); commit(); }
+      sync();
+    });
+    reset.addEventListener("click", () => { set(path, getPath(defaults, path)); commit(); sync(); });
+    syncers.push(sync);
+    return row(label, picker, hex, reset);
+  }
+  function rangeControl(path, label, min, max, step, format = v => v) {
+    const input = el("input", { type: "range", min, max, step, "aria-label": label });
+    const value = el("span", { class: "val" });
+    const sync = () => { const v = getPath(state, path); input.value = v; value.textContent = format(Number(v)); };
+    input.addEventListener("input", () => { set(path, Number(input.value)); value.textContent = format(Number(input.value)); });
+    input.addEventListener("change", commit);
+    syncers.push(sync);
+    return row(label, input, value);
+  }
+  function selectControl(path, label, options) {
+    const select = el("select", { class: "grow", "aria-label": label }, options.map(o => el("option", { value: o }, o)));
+    const sync = () => { select.value = getPath(state, path); };
+    select.addEventListener("change", () => { set(path, select.value); commit(); });
+    syncers.push(sync);
+    return row(label, select);
+  }
+  function segControl(path, label, options) {
+    const buttons = options.map(([value, text]) => el("button", { type: "button", "data-v": value }, text));
+    const seg = el("div", { class: "seg", role: "group", "aria-label": label }, buttons);
+    const sync = () => buttons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === getPath(state, path))));
+    buttons.forEach(b => b.addEventListener("click", () => { set(path, b.dataset.v); commit(); sync(); }));
+    syncers.push(sync);
+    return row(label, seg);
+  }
+  function toggleControl(path, label) {
+    const button = el("button", { type: "button", class: "switch", role: "switch", "aria-label": label });
+    const sync = () => button.setAttribute("aria-checked", String(Boolean(getPath(state, path))));
+    button.addEventListener("click", () => { set(path, !getPath(state, path)); commit(); sync(); });
+    syncers.push(sync);
+    return row(label, el("span", { class: "grow" }), button);
+  }
+  function textControl(path, label, placeholder) {
+    const input = el("input", { type: "text", class: "grow", placeholder, maxlength: 40, "aria-label": label });
+    const sync = () => { input.value = getPath(state, path) || ""; };
+    input.addEventListener("input", () => set(path, input.value));
+    input.addEventListener("change", commit);
+    syncers.push(sync);
+    return row(label, input);
+  }
+
+  function downscale(file, maxSide = 1200) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const canvas = el("canvas", { width: Math.round(img.width * scale), height: Math.round(img.height * scale) });
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Could not read the image")); };
+      img.src = url;
+    });
+  }
+  function photoControl() {
+    const thumb = el("img", { class: "photo-thumb", alt: "" });
+    const file = el("input", { type: "file", accept: "image/*", hidden: true });
+    const pick = el("button", { type: "button", class: "btn" }, "Upload…");
+    const clear = el("button", { type: "button", class: "btn" }, "Default");
+    const path = el("input", { type: "text", class: "grow", placeholder: "or file name, e.g. me.jpg", "aria-label": "Photo file name" });
+    const sync = () => {
+      const photo = state.photo;
+      thumb.src = photo || defaultPhoto || "";
+      path.value = photo.startsWith("data:") ? "" : photo;
+    };
+    pick.addEventListener("click", () => file.click());
+    file.addEventListener("change", async () => {
+      if (!file.files[0]) return;
+      try {
+        set("photo", await downscale(file.files[0]));
+        commit();
+        sync();
+        toast(`Photo embedded (${Math.round(state.photo.length * 0.75 / 1024)} KB). Prefer a file in the project folder for large images.`);
+      } catch (error) { toast(error.message); }
+      file.value = "";
+    });
+    clear.addEventListener("click", () => { set("photo", ""); commit(); sync(); });
+    path.addEventListener("input", () => set("photo", path.value.trim()));
+    path.addEventListener("change", () => { commit(); sync(); });
+    syncers.push(sync);
+    return el("div", {},
+      row("Photo", thumb, pick, clear, file),
+      row("", path),
+      el("p", { class: "hint" }, "Uploads are resized and embedded in site-config.js. For a big image, copy it next to index.html and type its file name instead."));
+  }
+
+  function buildDesignPane() {
+    const pane = $("#pane-design");
+    const group = (title, ...items) => pane.append(el("section", { class: "group" }, el("h3", {}, title), ...items));
+    group("Brand", textControl("brand", "Name", "brightside"), photoControl(),
+      rangeControl("hero.focusX", "Crop X", 0, 100, 1, v => v + "%"), rangeControl("hero.focusY", "Crop Y", 0, 100, 1, v => v + "%"));
+    group("Colors",
+      colorControl("colors.green", "Accent"), colorControl("colors.deep", "Primary dark"), colorControl("colors.paper", "Background"),
+      colorControl("colors.ink", "Text"), colorControl("colors.muted", "Muted text"), colorControl("colors.line", "Lines"));
+    group("Typography", selectControl("fonts.display", "Headings", fontList), selectControl("fonts.sans", "Body", fontList),
+      el("p", { class: "hint" }, "Fonts load from Google Fonts. Polish characters are supported by all of them."));
+    group("Shape",
+      rangeControl("shape.cardRadius", "Card radius", 0, 40, 1, v => v + "px"),
+      segControl("shape.buttonShape", "Buttons", [["pill", "Pill"], ["rounded", "Round"], ["square", "Square"]]),
+      toggleControl("shape.buttonShadow", "Button shadow"));
+    group("Spacing", rangeControl("spacing.section", "Section gap", 0.4, 1.8, 0.05, v => v.toFixed(2) + "×"));
+    group("Hero",
+      segControl("hero.photoSide", "Photo side", [["right", "Right"], ["left", "Left"]]),
+      segControl("hero.photoShape", "Photo shape", [["arch", "Arch"], ["rounded", "Round"], ["oval", "Oval"]]),
+      toggleControl("hero.decorations", "Decorations"));
+    group("Features",
+      toggleControl("features.bento", "Bento offers"),
+      toggleControl("features.stickyCta", "Sticky CTA (phone)"),
+      toggleControl("features.animations", "Animations"));
+  }
+
+  // ---- Layers --------------------------------------------------------------------------
+  function moveSection(from, to, after) {
+    if (from === to) return;
+    const order = state.sections.order.filter(k => k !== from);
+    order.splice(order.indexOf(to) + (after ? 1 : 0), 0, from);
+    state.sections.order = order;
+    pushToPreview();
+    commit();
+    renderLayers();
+  }
+  function renderLayers() {
+    const list = $("#layerList");
+    list.replaceChildren();
+    list.append(el("div", { class: "layer fixed" }, el("span", { class: "grip" }, " "), el("span", { class: "name" }, "Header")));
+    const order = state.sections.order;
+    order.forEach((key, index) => {
+      const hidden = state.sections.hidden.includes(key);
+      const up = el("button", { type: "button", class: "icon-btn", title: "Move up", "aria-label": `Move ${SECTION_NAMES[key]} up`, disabled: index === 0 }, "▲");
+      const down = el("button", { type: "button", class: "icon-btn", title: "Move down", "aria-label": `Move ${SECTION_NAMES[key]} down`, disabled: index === order.length - 1 }, "▼");
+      const eye = el("button", { type: "button", class: "icon-btn", title: hidden ? "Show" : "Hide", "aria-label": `${hidden ? "Show" : "Hide"} ${SECTION_NAMES[key]}`, "aria-pressed": String(!hidden) }, hidden ? "◌" : "●");
+      const layer = el("div", { class: `layer${selectedSection === key ? " selected" : ""}${hidden ? " hidden-layer" : ""}`, draggable: true, "data-key": key },
+        el("span", { class: "grip", title: "Drag" }, "⋮⋮"), el("span", { class: "name" }, SECTION_NAMES[key]), up, down, eye);
+      up.addEventListener("click", e => { e.stopPropagation(); moveSection(key, order[index - 1], false); });
+      down.addEventListener("click", e => { e.stopPropagation(); moveSection(key, order[index + 1], true); });
+      eye.addEventListener("click", e => {
+        e.stopPropagation();
+        const set_ = new Set(state.sections.hidden);
+        set_.has(key) ? set_.delete(key) : set_.add(key);
+        state.sections.hidden = [...set_];
+        pushToPreview();
+        commit();
+        renderLayers();
+      });
+      layer.addEventListener("click", () => { selectedSection = key; renderLayers(); sendSelect("section", key); });
+      layer.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", key); e.dataTransfer.effectAllowed = "move"; layer.classList.add("dragging"); });
+      layer.addEventListener("dragover", e => {
+        e.preventDefault();
+        const box = layer.getBoundingClientRect();
+        const after = e.clientY >= box.top + box.height / 2;
+        layer.classList.toggle("drop-before", !after);
+        layer.classList.toggle("drop-after", after);
+      });
+      layer.addEventListener("dragleave", () => layer.classList.remove("drop-before", "drop-after"));
+      layer.addEventListener("drop", e => {
+        e.preventDefault();
+        const box = layer.getBoundingClientRect();
+        moveSection(e.dataTransfer.getData("text/plain"), key, e.clientY >= box.top + box.height / 2);
+      });
+      layer.addEventListener("dragend", renderLayers);
+      list.append(layer);
+    });
+    list.append(el("div", { class: "layer fixed" }, el("span", { class: "grip" }, " "), el("span", { class: "name" }, "Footer")));
+  }
+
+  // ---- Text editing ----------------------------------------------------------------------
+  const currentText = (lang, key) => state.text[lang]?.[key] ?? defaultTranslations[lang]?.[key] ?? "";
+  function setText(lang, key, value) {
+    state.text[lang] ??= {};
+    if (value === defaultTranslations[lang]?.[key]) delete state.text[lang][key];
+    else state.text[lang][key] = value;
+    pushToPreview();
+  }
+  function renderTextEditor() {
+    const host = $("#textEditor");
+    if (!host) return;
+    host.replaceChildren();
+    if (!selectedKey) {
+      host.append(el("p", { class: "empty" }, "Click any text in the preview, or pick one from the list below."));
+      return;
+    }
+    const key = selectedKey;
+    host.append(el("div", { class: "text-card" }, el("div", {}, "Editing ", el("code", {}, key)),
+      ...["en", "pl"].map(lang => {
+        const area = el("textarea", { "aria-label": `${key} (${lang.toUpperCase()})`, spellcheck: "false" });
+        area.value = currentText(lang, key);
+        const reset = el("button", { type: "button", class: "mini", title: "Reset to original text" }, "↺ reset");
+        area.addEventListener("input", () => { setText(lang, key, area.value); renderKeyList(); });
+        area.addEventListener("change", commit);
+        reset.addEventListener("click", () => { setText(lang, key, defaultTranslations[lang][key]); area.value = currentText(lang, key); commit(); renderKeyList(); });
+        return el("div", {}, el("div", { class: "lab-row" }, el("label", {}, lang === "en" ? "English" : "Polski"), reset), area);
+      }),
+      el("p", { class: "hint" }, "Allowed markup: <br> for a line break, <em>…</em> for the highlighted word, <strong>…</strong>.")));
+  }
+  function renderKeyList() {
+    const host = $("#keyList");
+    if (!host) return;
+    const query = ($("#keySearch")?.value || "").trim().toLowerCase();
+    host.replaceChildren();
+    const keys = usedKeys.filter(key => !query || key.toLowerCase().includes(query)
+      || currentText("en", key).toLowerCase().includes(query) || currentText("pl", key).toLowerCase().includes(query));
+    keys.slice(0, 200).forEach(key => {
+      const changed = state.text.en?.[key] !== undefined || state.text.pl?.[key] !== undefined;
+      const item = el("button", { type: "button", class: `key-row${key === selectedKey ? " selected" : ""}` },
+        el("span", { class: "k" }, key, changed ? el("i", {}, "● edited") : null),
+        el("span", { class: "v" }, currentText(previewLang, key).replace(/<[^>]*>/g, " ")));
+      item.addEventListener("click", () => selectText(key, false));
+      host.append(item);
+    });
+    if (!keys.length) host.append(el("p", { class: "empty" }, "Nothing matches."));
+  }
+  function buildTextPane() {
+    const pane = $("#pane-text");
+    pane.append(el("div", { id: "textEditor" }),
+      el("input", { class: "search", id: "keySearch", type: "search", placeholder: "Search all texts…", "aria-label": "Search texts", oninput: renderKeyList }),
+      el("div", { id: "keyList" }));
+  }
+  function showTab(name) {
+    for (const tab of ["design", "text"]) {
+      $(`#tab-${tab}`).setAttribute("aria-selected", String(tab === name));
+      $(`#pane-${tab}`).hidden = tab !== name;
+    }
+  }
+  function selectText(key, fromPreview) {
+    selectedKey = key;
+    showTab("text");
+    renderTextEditor();
+    renderKeyList();
+    if (!fromPreview) sendSelect("text", key);
+    $("#pane-text").scrollTop = 0;
+  }
+
+  // ---- Preview sizing ------------------------------------------------------------------------
+  function fit() {
+    const width = DEVICES[device];
+    const availW = stage.clientWidth - 48;
+    const availH = stage.clientHeight - 48;
+    const scale = Math.min(1, availW / width);
+    const height = device === "phone" ? Math.min(860, availH / scale) : availH / scale;
+    iframe.style.width = width + "px";
+    iframe.style.height = height + "px";
+    iframe.style.transform = `scale(${scale})`;
+    frameWrap.style.width = width * scale + "px";
+    frameWrap.style.height = height * scale + "px";
+    frameWrap.classList.toggle("phone", device === "phone");
+    $("#zoom").textContent = Math.round(scale * 100) + "%";
+  }
+
+  // ---- Save / export ------------------------------------------------------------------------
+  function configFileText() {
+    const out = clone(state);
+    for (const lang of ["en", "pl"]) {
+      for (const key of Object.keys(out.text[lang] || {})) if (out.text[lang][key] === defaultTranslations[lang]?.[key]) delete out.text[lang][key];
+    }
+    return "// Site settings written by editor.html. Open editor.html to change them.\n"
+      + "window.BRIGHTSIDE_SITE = " + JSON.stringify(out, null, 2) + ";\n";
+  }
+  function markSaved() {
+    dirty = false;
+    setStatus();
+    try { localStorage.removeItem(DRAFT_KEY); } catch {}
+  }
+  function download() {
+    const url = URL.createObjectURL(new Blob([configFileText()], { type: "text/javascript" }));
+    el("a", { href: url, download: "site-config.js" }).click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    markSaved();
+    toast("Downloaded site-config.js. Replace the file next to index.html with it.");
+  }
+  async function save() {
+    if (!("showSaveFilePicker" in window)) return download();
+    try {
+      if (!fileHandle) {
+        fileHandle = await window.showSaveFilePicker({ suggestedName: "site-config.js", types: [{ description: "JavaScript", accept: { "text/javascript": [".js"] } }] });
+      }
+      const writable = await fileHandle.createWritable();
+      await writable.write(configFileText());
+      await writable.close();
+      markSaved();
+      toast(fileHandle.name === "site-config.js"
+        ? "Saved site-config.js. Reload the site to see it live."
+        : `Saved as ${fileHandle.name}. It must be named site-config.js and sit next to index.html.`);
+    } catch (error) {
+      if (error.name === "AbortError") return;
+      fileHandle = null;
+      console.warn(error);
+      download();
+    }
+  }
+
+  let toastTimer;
+  function toast(message, actions = []) {
+    const box = $("#toast");
+    box.replaceChildren(message, ...actions.map(([label, handler]) => el("button", { type: "button", class: "btn", onclick: () => { handler(); box.classList.remove("show"); } }, label)));
+    box.classList.add("show");
+    clearTimeout(toastTimer);
+    if (!actions.length) toastTimer = setTimeout(() => box.classList.remove("show"), 6000);
+  }
+
+  // ---- Wiring ----------------------------------------------------------------------------------------
+  function onReady(data) {
+    defaults = data.defaults;
+    fontList = data.fonts;
+    sectionKeys = data.sections;
+    usedKeys = data.usedKeys;
+    defaultTranslations = data.defaultTranslations;
+    defaultPhoto = data.defaultPhoto;
+    $("#loading").hidden = true;
+    if (built) { pushToPreview(); iframe.contentWindow.postMessage({ type: "lang", lang: previewLang }, "*"); return; }
+    state = clone(data.config);
+    lastCommitted = JSON.stringify(state);
+    buildDesignPane();
+    buildTextPane();
+    built = true;
+    syncAll();
+    setStatus();
+    fit();
+    iframe.contentWindow.postMessage({ type: "lang", lang: previewLang }, "*");
+    try {
+      const draft = localStorage.getItem(DRAFT_KEY);
+      if (draft && draft !== lastCommitted) {
+        toast("Unsaved draft from your last session found.", [
+          ["Restore", () => { undoStack.push(lastCommitted); restore(draft); }],
+          ["Discard", () => localStorage.removeItem(DRAFT_KEY)]
+        ]);
+      }
+    } catch {}
+  }
+
+  window.addEventListener("message", event => {
+    if (event.source !== iframe.contentWindow || !event.data || typeof event.data !== "object") return;
+    const data = event.data;
+    if (data.type === "ready") onReady(data);
+    else if (data.type === "select" && built) {
+      if (data.kind === "text") selectText(data.key, true);
+      else if (data.kind === "section") { selectedSection = data.key; renderLayers(); }
+    }
+  });
+
+  iframe.addEventListener("load", () => iframe.contentWindow.postMessage({ type: "hello" }, "*"));
+  $("#deviceSeg").addEventListener("click", event => {
+    const button = event.target.closest("[data-device]");
+    if (!button) return;
+    device = button.dataset.device;
+    $("#deviceSeg").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === button)));
+    fit();
+  });
+  $("#langSeg").addEventListener("click", event => {
+    const button = event.target.closest("[data-lang]");
+    if (!button) return;
+    previewLang = button.dataset.lang;
+    $("#langSeg").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b === button)));
+    iframe.contentWindow.postMessage({ type: "lang", lang: previewLang }, "*");
+    if (built) renderKeyList();
+  });
+  $("#tab-design").addEventListener("click", () => showTab("design"));
+  $("#tab-text").addEventListener("click", () => showTab("text"));
+  $("#undo").addEventListener("click", undo);
+  $("#redo").addEventListener("click", redo);
+  $("#save").addEventListener("click", save);
+  $("#download").addEventListener("click", () => built && download());
+  $("#reset").addEventListener("click", () => {
+    if (!built || !confirm("Reset everything to the built-in design and original texts?")) return;
+    state = clone(defaults);
+    state.text = { en: {}, pl: {} };
+    syncAll();
+    pushToPreview();
+    commit();
+  });
+  const compare = $("#compare");
+  const showOriginal = on => { if (built) pushToPreview(on ? { text: { en: {}, pl: {} } } : state); };
+  compare.addEventListener("pointerdown", () => showOriginal(true));
+  for (const type of ["pointerup", "pointerleave", "pointercancel"]) compare.addEventListener(type, () => showOriginal(false));
+
+  document.addEventListener("keydown", event => {
+    const mod = event.ctrlKey || event.metaKey;
+    if (!mod) return;
+    const typing = event.target.matches?.("input,textarea,select");
+    const key = event.key.toLowerCase();
+    if (key === "s") { event.preventDefault(); if (built) save(); }
+    else if (!typing && key === "z") { event.preventDefault(); event.shiftKey ? redo() : undo(); }
+    else if (!typing && key === "y") { event.preventDefault(); redo(); }
+  });
+  window.addEventListener("beforeunload", event => { if (dirty) { event.preventDefault(); event.returnValue = ""; } });
+  new ResizeObserver(fit).observe(stage);
+  fit();
+  setTimeout(() => { if (!built) $("#loading").textContent = "The preview did not respond. Open this file next to index.html in Chrome or Edge."; }, 6000);
+})();
+</script>
+</body>
+</html>
