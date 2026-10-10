@@ -1,19 +1,25 @@
 # tutors_webp
 
-Static one-page site for a maths and physics tutor (EN/PL). No build step: open `index.html`.
+Statyczna jednostronicowa strona korepetytora matematyki i fizyki (PL/EN). Bez budowania: otwórz `index.html`.
 
-## Site editor (branch `ui-redesign`)
+## Edytor strony (`editor.html`)
 
-`editor.html` is a small visual editor for the page. Open it in Chrome or Edge, next to `index.html`.
+Prosty wizualny edytor strony, coś w rodzaju małego Figma. Otwórz `editor.html` w Chrome lub Edge, w tym samym folderze co `index.html`.
 
-- **Live preview** with Desktop / Tablet / Phone sizes and an EN / PL switch.
-- **Design tab:** colors, fonts, card radius, button shape and shadow, section spacing, hero layout (photo side, shape, crop), photo upload, bento offers, sticky CTA, animations.
-- **Page structure (left):** drag or use the arrows to reorder sections, the eye hides a section and its menu link.
-- **Text tab:** click any text in the preview to edit it (EN and PL), or search the list of all texts.
-- Undo / redo (Ctrl+Z / Ctrl+Shift+Z), "Hold: original" to compare with the built-in design, auto-saved draft.
-- **Save** (Ctrl+S) writes `site-config.js` (pick the file next to `index.html` once). Browsers without file access fall back to a download; replace the file by hand.
+- **Podgląd na żywo** w trzech rozmiarach (komputer / tablet / telefon) i w obu językach.
+- **Podświetlanie:** gdy najedziesz na dowolną opcję, podgląd obrysowuje na niebiesko elementy, które ta opcja zmienia (wyłączane przełącznikiem „Pokazuj, co zmienia"). Żółta kropka oznacza ustawienie zmienione względem oryginału, ↺ cofa je.
+- **Styl:** gotowe palety, kolory, czcionki, kształt kart i przycisków, odstępy, szerokość treści, układ górnej części, kafelki ofert, przyklejony przycisk, animacje.
+- **Sekcja:** tło sekcji, dodatkowy odstęp, ukrywanie całej sekcji i pojedynczych elementów.
+- **Tekst:** kliknij napis w podglądzie, aby zmienić jego treść (PL i EN), rozmiar, grubość i kolor.
+- **Treść:** nazwa marki, zdjęcie, dokąd prowadzą główne przyciski, telefon (z opcją pokazania od razu), e-mail, LinkedIn, link do kalendarza Google, logo narzędzi (Discord, Miro, Google Meet, Zoom, Teams, Skype, WhatsApp), opinie (do 6).
+- **Zmiany:** lista wszystkiego, co różni się od oryginału, z cofnięciem każdej zmiany osobno.
+- Lewy panel: kolejność sekcji (przeciąganie lub strzałki), oko ukrywa sekcję, strzałka rozwija jej elementy.
+- Cofnij / ponów (Ctrl+Z / Ctrl+Shift+Z), „Przytrzymaj: oryginał" do porównania, automatyczny szkic.
 
-The site reads `site-config.js` through `site-customize.js`; with an empty config it looks exactly like the built-in design.
-Settings are validated on load (hex colors, a font whitelist, numeric ranges, and text limited to `<br>`, `<em>`, `<strong>`).
+### Zapis i git
 
-Not covered by the editor: a few tint colors that are still hard-coded in `styles.css`, and the phone number / calendar URL (those stay in `calendar-config.js`).
+**Zapisz** (Ctrl+S) zapisuje plik `site-config.js` w folderze projektu (przy pierwszym zapisie wskaż plik obok `index.html`). To zwykły plik tekstowy, więc zmiany widać w `git diff` i zapisuje się je zwykłym commitem. Gdy przeglądarka nie pozwala zapisać pliku, edytor pobiera go, a Ty podmieniasz go ręcznie.
+
+Strona czyta `site-config.js` przez `site-customize.js`. Pusty plik oznacza wygląd domyślny. Wartości są walidowane przy wczytaniu (kolory hex, lista czcionek, zakresy liczb, adresy https, teksty tylko z `<br>`, `<em>`, `<strong>`).
+
+Poza edytorem zostają: kilka jasnych odcieni zapisanych na sztywno w `styles.css` oraz adres kalendarza i numer telefonu w `calendar-config.js` (edytor może je nadpisać w zakładce Treść).

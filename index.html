@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23d9f36a'/%3E%3Cpath d='M16 7v18M8.2 11.5l15.6 9M8.2 20.5l15.6-9' stroke='%23243b30' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
   <script src="calendar-config.js" defer></script>
   <script src="site-config.js" defer></script>
@@ -43,7 +44,7 @@
       <label class="language-picker"><span class="sr-only" id="language-label">Language</span><select id="language-select" aria-labelledby="language-label"><option value="en">EN</option><option value="pl">PL</option></select></label>
       <button class="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="site-nav"><svg class="ico ico-open" aria-hidden="true"><use href="#i-menu"/></svg><svg class="ico ico-close" aria-hidden="true"><use href="#i-close"/></svg></button>
     </div>
-    <nav class="nav" id="site-nav" aria-label="Main navigation"><a href="#approach" data-i18n="navApproach">About</a><a href="#lessons" data-i18n="navLessons">Lessons</a><a href="#pricing" data-i18n="navPricing">Pricing</a><a href="#booking" data-i18n="navAvailability">Availability</a><a href="#reviews" data-i18n="navReviews">Reviews</a><a href="#contact" data-i18n="navContact">Contact</a><a class="nav-cta" href="#booking"><span data-i18n="navCta">Book your first lesson</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></nav>
+    <nav class="nav" id="site-nav" aria-label="Main navigation"><a href="#approach" data-i18n="navApproach">About</a><a href="#lessons" data-i18n="navLessons">Lessons</a><a href="#pricing" data-i18n="navPricing">Pricing</a><a href="#booking" data-i18n="navAvailability">Availability</a><a href="#reviews" data-i18n="navReviews">Reviews</a><a href="#contact" data-i18n="navContact">Contact</a><a class="nav-cta" href="#booking" data-cta="main"><span data-i18n="navCta">Book your first lesson</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></nav>
   </header>
   <main id="top">
     <section class="wrap hero" id="approach">
@@ -52,7 +53,7 @@
         <h1 data-i18n="heroTitle">Let’s make<br><em>it click.</em></h1>
         <p class="lead" data-i18n="heroLead">Hi, I’m your maths and physics tutor. I’ll help you understand the ideas behind the formulas, build confidence, and find a way of learning that works for you.</p>
         <div class="tutor-quick-info"><span class="quick-info-mark" aria-hidden="true">ML</span><div><strong data-i18n="tutorQuickTitle">A little about your tutor</strong><p data-i18n="tutorQuickText">Michał Luchowski teaches maths and physics to primary and secondary pupils, online and in person. His tailored lessons focus on understanding, not memorising.</p><a class="linkedin-link" href="https://www.linkedin.com/in/micha%C5%82-luchowski-48093820b/" target="_blank" rel="noopener noreferrer" aria-label="View Michał Luchowski on LinkedIn"><span class="linkedin-mark" aria-hidden="true">in</span><span data-i18n="linkedinLabel">Connect on LinkedIn</span><svg class="ico linkedin-arrow" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></div></div>
-        <div class="hero-actions"><a class="button" href="#booking"><span data-i18n="heroButton">Find your first lesson</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"/></svg></a><a class="button is-outline" href="#lessons"><span data-i18n="explore">Explore lessons</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-down"/></svg></a></div>
+        <div class="hero-actions"><a class="button" href="#booking" data-cta="page"><span data-i18n="heroButton">Find your first lesson</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"/></svg></a><a class="button is-outline" href="#lessons"><span data-i18n="explore">Explore lessons</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-down"/></svg></a></div>
         <div class="proof"><span class="proof-star" aria-hidden="true"><svg class="ico"><use href="#i-asterisk"/></svg></span><span data-i18n="proof">Patient, personal support<br>One lesson at a time.</span></div>
       </div>
       <div class="portrait-scene" aria-label="Tutor’s study buddy">
@@ -76,7 +77,7 @@
           <div class="price-amount"><strong data-i18n="priceOnline">Add price</strong><span data-i18n="pricePerLesson">per lesson</span></div>
           <p class="price-duration" data-i18n="pricingDuration">60-minute individual lesson</p>
           <hr>
-          <div class="chips"><span class="chip chip-discord"><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>Discord</span><span class="chip chip-miro"><svg class="ico" aria-hidden="true"><use href="#i-pen"/></svg>Miro</span><span class="chip chip-meet"><svg class="ico" aria-hidden="true"><use href="#i-video"/></svg>Google Meet</span></div>
+          <div class="chips" id="tool-chips"></div>
         </article>
         <article class="price-card">
           <div class="price-card-head"><span class="price-icon" aria-hidden="true"><svg class="ico"><use href="#i-pin"/></svg></span><h3 data-i18n="pricingOffline">In person</h3></div>
@@ -87,15 +88,21 @@
         </article>
       </div>
       <p class="pricing-note" data-i18n="pricingNote">Replace “Add price” with your rate before publishing. In-person lesson location can be agreed when booking.</p>
-      <a class="button pricing-cta" href="#booking"><span data-i18n="pricingCta">Check lesson times</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+      <a class="button pricing-cta" href="#booking" data-cta="page"><span data-i18n="pricingCta">Check lesson times</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
     </section>
     <section class="wrap section booking-section" id="booking">
       <div class="section-head"><div><div class="eyebrow" data-i18n="bookingEyebrow">Check availability</div><h2 data-i18n="bookingTitle">Find a time<br>that works for you.</h2></div><p class="section-desc" data-i18n="bookingDesc">Choose a lesson time that fits your week. Available slots update through Google Calendar.</p></div>
       <div class="booking-panel">
-        <div class="booking-message"><div class="booking-icon" aria-hidden="true"><svg class="ico"><use href="#i-calendar"/></svg></div><h3 data-i18n="bookingCardTitle">Choose your lesson time</h3><p id="calendar-message" data-i18n="calendarUnavailable">The live booking calendar hasn’t been connected yet. Get in touch and I’ll help find a time.</p><a id="calendar-open" class="button is-outline calendar-open" href="#contact" target="_blank" rel="noopener" hidden><span data-i18n="calendarOpen">Open booking calendar</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a><a id="calendar-contact" class="button calendar-contact" href="#contact"><span data-i18n="calendarContact">Ask about a time</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
-        <div class="calendar-frame" id="calendar-frame" hidden><iframe title="Google Calendar lesson availability" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+        <div class="booking-message"><div class="booking-icon" aria-hidden="true"><svg class="ico"><use href="#i-calendar"/></svg></div><h3 data-i18n="bookingCardTitle">Choose your lesson time</h3><p class="booking-meta" data-i18n="bookingMeta">60 minutes · online</p><p id="calendar-message" data-i18n="calendarUnavailable">The live booking calendar hasn’t been connected yet. Get in touch and I’ll help find a time.</p>
+          <ol class="booking-steps"><li data-i18n="bookingStep1">Pick a day and time</li><li data-i18n="bookingStep2">Enter your name and e-mail</li><li data-i18n="bookingStep3">You get a confirmation from Google Calendar</li></ol>
+          <a id="calendar-open" class="button is-outline calendar-open" href="#contact" target="_blank" rel="noopener" hidden><span data-i18n="calendarOpen">Open booking calendar</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a><a id="calendar-contact" class="button calendar-contact" href="#contact"><span data-i18n="calendarContact">Ask about a time</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+        <div class="calendar-frame" id="calendar-frame" hidden>
+          <div class="calendar-bar"><span class="calendar-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="calendar-bar-title" data-i18n="calendarBarTitle">Google Calendar · lesson booking</span><a class="calendar-bar-link" id="calendar-bar-link" href="#contact" target="_blank" rel="noopener"><span data-i18n="calendarNewTab">Open in a new tab</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></div>
+          <div class="calendar-stage"><div class="calendar-skeleton" aria-hidden="true"><i class="sk-title"></i><span class="sk-days"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="sk-slots"><i></i><i></i><i></i><i></i></span></div><iframe title="Google Calendar lesson availability" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+        </div>
       </div>
     </section>
+    <section class="wrap section opinions-section site-hidden" id="opinions" aria-labelledby="opinions-title"><div class="section-head"><div><div class="eyebrow" data-i18n="opinionsEyebrow">Kind words</div><h2 id="opinions-title" data-i18n="opinionsTitle">What students<br>and parents say</h2></div></div><div class="opinion-grid" id="opinion-grid"></div></section>
     <section class="quote-section" id="reviews"><div class="wrap quote-inner"><div><div class="quote-mark" aria-hidden="true">“</div><blockquote class="quote" data-i18n="quote">My goal is simple: help you understand the why, so you can tackle the next problem with confidence.</blockquote><div class="quote-by" data-i18n="quoteBy">A little about how I teach</div></div><div class="rating"><div class="stars" aria-hidden="true"><svg class="ico"><use href="#i-asterisk"/></svg></div><strong>1:1</strong><span data-i18n="ratingText">lessons shaped around you</span></div></div></section>
     <section class="wrap section contact-wrap" id="contact">
       <div class="contact">
@@ -111,11 +118,12 @@
           <button class="button is-outline submit" id="show-phone" type="button" aria-expanded="false"><span data-i18n="showPhone">Show phone number</span></button>
           <a class="phone-number" id="phone-number" hidden><span></span></a>
           <p class="phone-missing" id="phone-missing" role="status" hidden></p>
+          <a class="button is-outline contact-email" id="contact-email" href="#contact" hidden><span data-i18n="emailButton">Write an e-mail</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
         </div>
       </div>
     </section>
   </main>
-  <div class="sticky-cta" id="sticky-cta"><a class="button" href="#booking"><span data-i18n="navCta">Book your first lesson</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+  <div class="sticky-cta" id="sticky-cta"><a class="button" href="#booking" data-cta="main"><span data-i18n="navCta">Book your first lesson</span> <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
   <footer class="wrap footer"><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><svg class="ico"><use href="#i-asterisk"/></svg></span> brightside</a><span data-i18n="footerTag">Maths & physics, made clear.</span><div class="footer-links"><a href="#approach" data-i18n="navApproach">About</a><a href="#lessons" data-i18n="navLessons">Lessons</a><a href="#pricing" data-i18n="navPricing">Pricing</a><a href="#booking" data-i18n="navAvailability">Availability</a><a href="#reviews" data-i18n="navReviews">Reviews</a><a href="#contact" data-i18n="navContact">Contact</a></div><span>© <span id="year"></span> Brightside Tutoring</span></footer>
 </body>
 </html>
