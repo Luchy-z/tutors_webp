@@ -3,4 +3,4 @@
 window.BRIGHTSIDE_CALENDAR_URL = "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3AVv5UX6c1e1-ILDIrOqiY4bjh9QcaFY9rXqdKXAOGV8YxrLi6A3zaSVWvyrDeihhTOE_-2OiM?gv=true";
 
 // Add the tutor's phone number in international format, for example: +48123456789.
-window.BRIGHTSIDE_PHONE_NUMBER = "";
+window.BRIGHTSIDE_PHONE_NUMBER = "+48790493909";
