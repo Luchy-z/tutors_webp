@@ -1,6 +1,6 @@
 const translations = {
   en: {
-    pageTitle: "Brightside — Maths & Physics, made clear",
+    pageTitle: "Jasne! — Maths & Physics, made clear",
     description: "One-to-one maths and physics tutoring that makes the hard stuff click.",
     language: "Language", navLessons: "Lessons", navApproach: "About", navPricing: "Pricing", navAvailability: "Availability", navReviews: "Reviews", navContact: "Contact", navCta: "Book your first lesson",
     eyebrow: "One-to-one tutoring · Online", heroTitle: "Let’s make<br><em>it click.</em>",
@@ -21,7 +21,7 @@ const translations = {
     footerTag: "Maths & physics, made clear.", footerContact: "Get in touch"
   },
   pl: {
-    pageTitle: "Michał Luchowski — Matematyka i fizyka bez tajemnic",
+    pageTitle: "Jasne! — Matematyka i fizyka bez tajemnic",
     description: "Indywidualne korepetycje z matematyki i fizyki dla szkół podstawowych i średnich",
     language: "Język", navLessons: "Lekcje", navApproach: "O mnie", navPricing: "Cennik", navAvailability: "Terminy", navReviews: "Opinie", navContact: "Kontakt", navCta: "Umów pierwszą lekcję",
     eyebrow: "Indywidualne korepetycje · Online i Stacjonarnie", heroTitle: "Rozkmińmy <br><em>to razem.</em>",
@@ -48,13 +48,11 @@ const defaultTranslations = JSON.parse(JSON.stringify(translations));
 function getInitialLanguage() {
   const saved = localStorage.getItem("brightside-language");
   if (saved === "en" || saved === "pl") return saved;
-  const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
-  const preferredSupportedLanguage = browserLanguages.find(language => /^(pl|en)(-|$)/i.test(language || ""));
-  return preferredSupportedLanguage?.toLowerCase().startsWith("pl") ? "pl" : "en";
+  return "pl";
 }
 
 function setLanguage(language) {
-  const chosen = translations[language] ? language : "en";
+  const chosen = translations[language] ? language : "pl";
   const copy = translations[chosen];
   document.documentElement.lang = chosen;
   document.title = copy.pageTitle;
@@ -68,7 +66,7 @@ function setLanguage(language) {
     if (value !== undefined) element.placeholder = value;
   });
   document.querySelector("#language-label").textContent = copy.language;
-  document.querySelector(".topbar .brand").setAttribute("aria-label", chosen === "pl" ? "Strona główna Brightside" : "Brightside home");
+  document.querySelector(".topbar .brand").setAttribute("aria-label", chosen === "pl" ? "Strona główna Jasne!" : "Jasne! home");
   document.querySelector(".nav").setAttribute("aria-label", chosen === "pl" ? "Nawigacja główna" : "Main navigation");
   if (window.BrightsideCustomize) window.BrightsideCustomize.applyCta(chosen);
   else document.querySelectorAll("[data-cta=main]").forEach(link => { link.href = chosen === "pl" ? "#contact" : "#booking"; });

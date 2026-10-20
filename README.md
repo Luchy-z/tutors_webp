@@ -145,7 +145,7 @@ Format: jeden obiekt przypisany do `window.BRIGHTSIDE_SITE`. Wszystkie pola są 
 
 ```js
 window.BRIGHTSIDE_SITE = {
-  brand: "",                       // nazwa przy logo (puste = „brightside")
+  brand: "",                       // nazwa przy logo (puste = „Jasne!”)
   photo: "",                       // nazwa pliku albo data: URL
   colors: { ink, muted, paper, green, deep, line },   // #rrggbb
   fonts: { display: "Manrope", sans: "DM Sans" },

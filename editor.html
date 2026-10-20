@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Edytor strony — Brightside</title>
+<title>Edytor strony — Jasne!</title>
 <style>
   :root{--bg:#1b1c1e;--panel:#252628;--panel2:#2d2f31;--line:#3a3c3f;--text:#e8e9ea;--dim:#9a9da1;--accent:#0d99ff;--accent2:#0b7fd6;--danger:#f24822;--warn:#ffcd29}
   *{box-sizing:border-box}
@@ -570,7 +570,7 @@
     const phone = v => /^\+?[0-9 ()\-.]{6,24}$/.test(v);
     pane.append(el("div", { class: "intro" }, "Dane kontaktowe, logo narzędzi, opinie i zdjęcie. Pola z błędnym formatem są zaznaczone na czerwono i strona ich nie użyje."),
       group("Marka i zdjęcie", true,
-        ctl({ label: "Nazwa marki", desc: "Napis obok gwiazdki w menu i w stopce (puste = „brightside”).", targets: [".brand"] }, P("brand"), textW({ placeholder: "brightside", maxlength: 40 })),
+        ctl({ label: "Nazwa marki", desc: "Napis obok gwiazdki w menu i w stopce (puste = „Jasne!”).", targets: [".brand"] }, P("brand"), textW({ placeholder: "Jasne!", maxlength: 40 })),
         ctl({ label: "Zdjęcie korepetytora", desc: "Zdjęcie w górnej części strony.", targets: [".portrait-frame"] }, P("photo"), photoW)),
       group("Dokąd prowadzą przyciski", true,
         ctl({ label: "Główne przyciski „Umów lekcję”", desc: "Auto: w wersji polskiej do kontaktu, w angielskiej do rezerwacji. Dotyczy przycisku w menu, w górnej części, pod cennikiem i przyklejonego.", targets: ["[data-cta]"] }, P("cta.target"), segW([["auto", "Auto"], ["booking", "Rezerwacja"], ["contact", "Kontakt"]]))),
