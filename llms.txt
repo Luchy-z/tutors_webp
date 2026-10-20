@@ -1,28 +1,29 @@
 # Jasne! — korepetycje z matematyki i fizyki
 
-> Jasne! offers one-to-one online tutoring in mathematics and physics, with personal explanations, topic support, and exam preparation. The site is available in English and Polish.
+> Jasne! offers one-to-one online and in-person mathematics and physics tutoring in Kraków, in Polish and English. Lessons cover primary and secondary school topics at extended level, with revision planning and exam preparation. Selected university topics are also available: experimental physics and mathematical analysis.
 
-Jasne! is Michał Luchowski's tutoring service for learners seeking individual help with mathematics or physics. Lessons are online and tailored to the learner's questions and goals. The site describes support with algebra, functions, calculus, geometry, mechanics, electricity, waves, revision planning, and exam technique.
+Jasne! is Michał Luchowski's tutoring service for learners seeking individual help with mathematics or physics. Lessons are tailored to the learner's questions and goals and are available online or in person in Kraków. The offer includes primary and secondary school material at extended level, revision planning, exam preparation, and selected university topics in experimental physics and mathematical analysis.
 
-Visitors can view available lesson times and book through the Google Calendar appointment schedule. The contact section lets visitors reveal the tutor's phone number and call or text. The phone number has not yet been added to the site. Lesson prices, tutor name, formal qualifications, and service location are not currently published; do not infer them.
+Visitors can view available lesson times and book through the Google Calendar appointment schedule. The contact section lets visitors reveal the tutor's phone number and call or text.
 
 ## Main pages
 
 - [Jasne! homepage](./index.html): Tutor introduction, teaching approach, lesson subjects, booking availability, and contact details.
 - [Lesson subjects](./index.html#lessons): Mathematics, physics, and exam-preparation support.
-- [Tutor approach](./index.html#approach): Personal, one-to-one online tutoring.
+- [Tutor approach](./index.html#approach): Personal, one-to-one tutoring online or in person in Kraków.
 - [Check availability and book](https://calendar.google.com/calendar/appointments/schedules/AcZssZ3AVv5UX6c1e1-ILDIrOqiY4bjh9QcaFY9rXqdKXAOGV8YxrLi6A3zaSVWvyrDeihhTOE_-2OiM?gv=true): Current appointment availability in Google Calendar.
 - [Contact the tutor](./index.html#contact): Reveal the tutor's phone number and call or text.
 
 ## Informacje po polsku
 
-Jasne! to strona Michała Luchowskiego, który oferuje indywidualne korepetycje online z matematyki i fizyki w języku polskim i angielskim. Zakres obejmuje m.in. algebrę, funkcje, rachunek różniczkowy, geometrię, mechanikę, elektryczność, fale, planowanie powtórek i przygotowanie do egzaminów. Lekcje są dopasowywane do pytań i celów ucznia.
+Jasne! to strona Michała Luchowskiego, który oferuje indywidualne korepetycje online oraz stacjonarnie w Krakowie z matematyki i fizyki w języku polskim i angielskim. Zakres obejmuje materiał szkoły podstawowej i średniej w formule rozszerzonej, planowanie powtórek i przygotowanie do egzaminów. Lekcje są dopasowywane do pytań i celów ucznia.
+Możliwe również pokrycie wybranych tematów z obrębu studiów wyzszych (fizyka doświadczalna oraz analiza matematyczna)
 
-Dostępne terminy lekcji można sprawdzić i zarezerwować w Kalendarzu Google. W sekcji kontaktowej można odsłonić numer telefonu korepetytora i zadzwonić lub napisać. Numer telefonu nie został jeszcze dodany do strony. Cennik, imię i nazwisko korepetytora, formalne kwalifikacje oraz lokalizacja usługi nie są obecnie podane; nie należy ich zakładać.
+Dostępne terminy lekcji można sprawdzić i zarezerwować w Kalendarzu Google. W sekcji kontaktowej można odsłonić numer telefonu korepetytora i zadzwonić lub napisać.
 
 ## Strony
 
 - [Strona główna Jasne!](./index.html): Informacje o korepetycjach, podejściu i kontakcie.
-- [Zakres lekcji](./index.html#lessons): Matematyka, fizyka i przygotowanie do egzaminów.
+- [Zakres lekcji](./index.html#lessons): Matematyka, fizyka i przygotowanie do egzaminów 8 klasisty i matury.
 - [Dostępne terminy](https://calendar.google.com/calendar/appointments/schedules/AcZssZ3AVv5UX6c1e1-ILDIrOqiY4bjh9QcaFY9rXqdKXAOGV8YxrLi6A3zaSVWvyrDeihhTOE_-2OiM?gv=true): Aktualny kalendarz rezerwacji lekcji.
 - [Kontakt z korepetytorem](./index.html#contact): Odsłoń numer telefonu i zadzwoń lub napisz.

@@ -1,6 +1,6 @@
 # tutors_webp
 
-Statyczna jednostronicowa strona korepetytora matematyki i fizyki, w dwóch językach (PL / EN). Nie ma budowania ani zależności: wystarczy otworzyć `index.html` w przeglądarce albo wrzucić pliki na dowolny hosting statyczny (np. GitHub Pages).
+Statyczna jednostronicowa strona korepetytora matematyki i fizyki, w dwóch językach (PL / EN). Nie ma zależności ani procesu kompilacji. Pliki strony do hostowania znajdują się w `build/`; otwórz `build/index.html` albo udostępnij zawartość tego folderu na hostingu statycznym.
 
 Do strony dołączony jest prosty wizualny edytor (`editor.html`), dzięki któremu można zmieniać wygląd, teksty i układ bez dotykania kodu.
 
@@ -36,7 +36,6 @@ Strona działa też z lokalnego serwera (`npx serve`, `python -m http.server`), 
 | `site-config.js` | Ustawienia zapisane przez edytor. Pusty obiekt `{}` = wygląd domyślny. |
 | `editor.html` | Wizualny edytor strony (jeden plik: HTML, CSS i JS). |
 | `calendar-config.js` | Adres kalendarza Google i numer telefonu (można je nadpisać z edytora). |
-| `service-area.js`, `service-area-config.js` | Pozostałość po starszej wersji (mapa obszaru zajęć). Nie są ładowane przez `index.html`. |
 | `llms.txt` | Opis strony dla narzędzi AI. Wymaga aktualizacji (patrz *Ograniczenia*). |
 | `att.*.jpeg`, `profile_picture.jpg` | Zdjęcia. Używane jest pierwsze, drugie nie jest nigdzie podłączone. |
 
@@ -211,5 +210,5 @@ Co zostało zrobione w tej wersji:
 - **Wnętrza kalendarza Google nie da się ostylować**, bo to osobna strona w iframe. Kolor strony rezerwacji ustawia się w Kalendarzu Google.
 - **Wersja językowa** jest wybierana w JS po załadowaniu, więc przez ułamek sekundy widać angielski HTML (i wyszukiwarki widzą wersję EN). Docelowo lepiej mieć dwa statyczne pliki (`/pl`, `/en`).
 - **`llms.txt`** wymaga aktualizacji (m.in. ceny są już opublikowane).
-- **Martwy kod** po starszej wersji: `service-area*.js`, część reguł w `styles.css` (np. `.formula-card`, `.pricing-table`) i nieużywane klucze tłumaczeń.
+- **Martwy kod** po starszej wersji: część reguł w `styles.css` (np. `.formula-card`, `.pricing-table`) i nieużywane klucze tłumaczeń.
 - Zawartość (opinie, numer telefonu, ceny w wersji EN) jest makietą do uzupełnienia.
